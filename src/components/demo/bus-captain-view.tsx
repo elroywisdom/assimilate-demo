@@ -4,11 +4,8 @@ import React, { useState } from "react";
 import {
   Button,
   Input,
-  LayerCard,
   Badge,
-  Select,
   Dialog,
-  Meter,
   cn,
   Icons,
 } from "@/design-system";
@@ -45,7 +42,6 @@ export function BusCaptainView() {
   const [newPhone, setNewPhone] = useState("");
   const [newStop, setNewStop] = useState("Area 1 Roundabout");
   const [newCategory, setNewCategory] = useState<"First-Time Guest" | "New Convert">("First-Time Guest");
-  const [newMarital, setNewMarital] = useState<"Single" | "Married">("Single");
 
   const busMembers = roster.filter((m) => m.source === "bus");
   const boardedCount = busMembers.filter((m) => m.checkInStatus === "present").length;
@@ -71,7 +67,7 @@ export function BusCaptainView() {
       name: newName,
       phone: newPhone || "+234 800 000 0000",
       address: "Garki District, Abuja",
-      maritalStatus: newMarital,
+      maritalStatus: "Single" as const,
       branch: "COZA Global — The Guzape Campus",
       source: "bus" as const,
       pickupStop: newStop,

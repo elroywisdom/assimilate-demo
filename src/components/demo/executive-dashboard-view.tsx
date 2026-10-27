@@ -2,12 +2,9 @@
 
 import React, { useState } from "react";
 import {
-  Button,
   LayerCard,
   Badge,
   Select,
-  cn,
-  Icons,
 } from "@/design-system";
 import { useDemo } from "@/context/demo-context";
 import { AssimilationFunnelCard } from "@/components/coza";

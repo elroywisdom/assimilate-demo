@@ -3,9 +3,7 @@
 import React, { useState } from "react";
 import {
   Button,
-  LayerCard,
   Badge,
-  Meter,
   Dialog,
   cn,
   Icons,
@@ -95,7 +93,7 @@ export function MemberPortalView() {
   const [quizModalOpen, setQuizModalOpen] = useState(false);
   const [lowDataMode, setLowDataMode] = useState(true);
   const [selectedRobeSize, setSelectedRobeSize] = useState<"S" | "M" | "L" | "XL">(activeMember.baptismRobeSize || "M");
-  const [baptismSlot, setBaptismSlot] = useState("Saturday, Oct 31, 2026 • 09:00 AM (Guzape Pool)");
+  const [baptismSlot] = useState("Saturday, Oct 31, 2026 • 09:00 AM (Guzape Pool)");
 
   const currentLesson = LESSONS[activeLessonIndex] || LESSONS[0];
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Banner, Button, cn, Icons } from "@/design-system";
+import { Banner, Button, cn } from "@/design-system";
 
 export interface DuplicateAttendanceAlertProps {
   memberName: string;

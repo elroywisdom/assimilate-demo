@@ -48,7 +48,6 @@ export function PcuDeskView() {
   } | null>(null);
 
   const busMembers = roster.filter((m) => m.source === "bus");
-  const pcuMembers = roster.filter((m) => m.source === "pcu");
   const giftEligibleMembers = roster.filter(
     (m) => m.giftStatus === "eligible" || m.giftStatus === "dispatched" || m.classStatus === "completed"
   );

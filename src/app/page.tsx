@@ -47,7 +47,7 @@ function DemoLayoutInner() {
     }
 
     if (params.get("mode") === "app") {
-      setViewMode("app");
+      setTimeout(() => setViewMode("app"), 0);
     }
   }, [setCurrentPersona]);
 

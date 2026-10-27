@@ -42,7 +42,7 @@ export function ZonalCoordinatorView() {
     setCurrentPersona,
   } = useDemo();
 
-  const [activeZone, setActiveZone] = useState("Maitama Extension");
+  const [activeZone] = useState("Maitama Extension");
   const [activeFilter, setActiveFilter] = useState<"all" | "sla" | "saturday" | "absence">("all");
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportSubmitted, setReportSubmitted] = useState(false);
