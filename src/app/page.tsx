@@ -22,9 +22,7 @@ function DemoLayoutInner() {
   const { currentPersona, setCurrentPersona, activeMember } = useDemo();
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [roleModalOpen, setRoleModalOpen] = useState(false);
-  const [shareModalOpen, setShareModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"app" | "presentation">("presentation");
-  const [copiedLink, setCopiedLink] = useState<string | null>(null);
 
   // Parse URL query parameter ?role=... or ?mode=...
   useEffect(() => {
@@ -59,15 +57,6 @@ function DemoLayoutInner() {
     if (typeof document !== "undefined") {
       document.documentElement.setAttribute("data-mode", nextMode ? "dark" : "light");
     }
-  };
-
-  const handleCopyLink = (roleKey?: string) => {
-    if (typeof window === "undefined") return;
-    const origin = window.location.origin;
-    const url = roleKey ? `${origin}/?role=${roleKey}` : origin;
-    navigator.clipboard.writeText(url);
-    setCopiedLink(roleKey || "all");
-    setTimeout(() => setCopiedLink(null), 3000);
   };
 
   const personaTabs = [
@@ -134,20 +123,8 @@ function DemoLayoutInner() {
               </div>
             </div>
 
-            {/* Quick Action Controls: Share Link, App/Demo View Mode, Theme */}
+            {/* Quick Action Controls: App/Demo View Mode, Theme */}
             <div className="flex items-center gap-1.5 shrink-0">
-              {/* Share Live Phone Link Modal */}
-              <Button
-                variant="outline"
-                size="xs"
-                onClick={() => setShareModalOpen(true)}
-                className="text-xs gap-1 text-kumo-brand"
-                aria-label="Share Link for Phone"
-              >
-                <Icons.ShareNetwork className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Share Link</span>
-              </Button>
-
               {/* View Mode Switcher (App vs Presentation) */}
               <Button
                 variant="ghost"
@@ -327,23 +304,14 @@ function DemoLayoutInner() {
       </main>
 
       {/* Floating Role Switcher Pill for Mobile Experience */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 p-1.5 rounded-full bg-kumo-base/95 backdrop-blur-md border border-kumo-line shadow-2xl">
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
         <button
           type="button"
           onClick={() => setRoleModalOpen(true)}
-          className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-kumo-brand text-white text-xs font-bold shadow-sm cursor-pointer hover:bg-kumo-brand/90 transition-all"
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-kumo-brand text-white text-xs font-bold shadow-2xl cursor-pointer hover:bg-kumo-brand/90 transition-all border border-white/10"
         >
           <Icons.ArrowsLeftRight className="w-3.5 h-3.5" />
           <span>Role: {currentRoleMeta.label.split(".")[1]?.trim() || currentRoleMeta.label}</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setShareModalOpen(true)}
-          className="w-8 h-8 rounded-full bg-kumo-elevated border border-kumo-hairline text-kumo-default flex items-center justify-center cursor-pointer hover:bg-kumo-recessed transition-all"
-          aria-label="Share live link"
-        >
-          <Icons.ShareNetwork className="w-3.5 h-3.5 text-kumo-brand" />
         </button>
       </div>
 
@@ -358,69 +326,6 @@ function DemoLayoutInner() {
             onClose={() => setRoleModalOpen(false)}
             isModal={true}
           />
-        </Dialog>
-      </Dialog.Root>
-
-      {/* Share Phone Link Modal */}
-      <Dialog.Root open={shareModalOpen} onOpenChange={setShareModalOpen}>
-        <Dialog size="base" className="p-4 sm:p-6 bg-kumo-base border border-kumo-line rounded-3xl space-y-4 max-w-lg w-[calc(100vw-1.5rem)] sm:w-full">
-          <Dialog.Title className="text-base font-bold text-kumo-default flex items-center gap-2">
-            <Icons.DeviceMobile className="w-5 h-5 text-kumo-brand" />
-            <span>Send Live App Link to Phones</span>
-          </Dialog.Title>
-          <Dialog.Description className="text-xs text-kumo-subtle">
-            Share direct persona links so stakeholders can follow along on their personal smartphones during your presentation.
-          </Dialog.Description>
-
-          <div className="space-y-3 pt-1">
-            <div className="p-3 rounded-2xl bg-kumo-recessed border border-kumo-hairline space-y-1.5 text-xs">
-              <span className="font-bold text-kumo-default block">Direct Persona Share Links:</span>
-              <div className="space-y-2">
-                {[
-                  { key: "member", label: "📱 Church Member / Believers' Class", desc: "Opens Figma SCR-MEM-04/05 video player, quiz, baptism" },
-                  { key: "bus-captain", label: "🚌 Bus Captain Transit App", desc: "Opens Bus 4 Area 1 offline seat manifest & boarding" },
-                  { key: "pcu", label: "🏢 PCU Service Desk", desc: "Opens Foyer attendance reconciler & welcome gift desk" },
-                  { key: "zonal", label: "🤝 Zonal Coordinator", desc: "Opens 48h SLA pastoral care queue & WhatsApp welcome" },
-                  { key: "pastor", label: "📊 Senior Pastor Executive", desc: "Opens church-wide assimilation funnel analytics" },
-                ].map((item) => (
-                  <div
-                    key={item.key}
-                    className="p-2.5 rounded-xl border border-kumo-hairline bg-kumo-base flex items-center justify-between gap-2"
-                  >
-                    <div className="min-w-0">
-                      <div className="font-semibold text-kumo-default text-xs">{item.label}</div>
-                      <div className="text-[10px] text-kumo-subtle truncate">{item.desc}</div>
-                    </div>
-
-                    <Button
-                      variant={copiedLink === item.key ? "secondary" : "outline"}
-                      size="xs"
-                      onClick={() => handleCopyLink(item.key)}
-                      className="text-xs shrink-0"
-                    >
-                      {copiedLink === item.key ? "Copied ✓" : "Copy Link"}
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Network Note */}
-            <div className="p-3 rounded-xl bg-kumo-elevated border border-kumo-hairline text-xs space-y-1">
-              <div className="font-semibold text-kumo-default flex items-center gap-1.5">
-                <Icons.WifiHigh className="w-4 h-4 text-emerald-400" />
-                <span>Wi-Fi / Presentation Setup:</span>
-              </div>
-              <p className="text-kumo-subtle text-[11px] leading-relaxed">
-                Attendees on the same Wi-Fi can open: <strong className="text-kumo-default font-mono">http://192.168.0.135:3000</strong>.
-                For cellular phones outside local Wi-Fi, run a quick tunnel (e.g., <code className="bg-kumo-recessed px-1 py-0.5 rounded font-mono">npx localtunnel --port 3000</code>).
-              </p>
-            </div>
-          </div>
-
-          <div className="flex justify-end pt-2">
-            <Dialog.Close render={(p) => <Button {...p} variant="primary" size="sm">Done</Button>} />
-          </div>
         </Dialog>
       </Dialog.Root>
     </div>
