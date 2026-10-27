@@ -117,7 +117,7 @@ export function MemberPortalView() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 max-w-xl mx-auto pb-28">
       {/* Clean Member Portal Header */}
       <div className="p-3.5 sm:p-4 rounded-xl border border-kumo-line bg-kumo-elevated flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
         <div>
@@ -373,69 +373,6 @@ export function MemberPortalView() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Mobile Bottom Navigation Bar */}
-            <div className="border-t border-kumo-line bg-kumo-canvas/90 backdrop-blur-md px-6 py-2.5 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveBottomNav("home");
-                  setMobileScreen("home");
-                }}
-                className={cn(
-                  "flex flex-col items-center gap-1 transition-all cursor-pointer",
-                  activeBottomNav === "home" ? "text-kumo-brand font-semibold" : "text-kumo-subtle hover:text-kumo-default"
-                )}
-              >
-                <Icons.House className="w-5 h-5" weight={activeBottomNav === "home" ? "fill" : "regular"} />
-                <span className="text-[10px]">Home</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveBottomNav("learn");
-                  setMobileScreen("player");
-                }}
-                className={cn(
-                  "flex flex-col items-center gap-1 transition-all cursor-pointer",
-                  activeBottomNav === "learn" ? "text-kumo-brand font-semibold" : "text-kumo-subtle hover:text-kumo-default"
-                )}
-              >
-                <Icons.BookOpen className="w-5 h-5" weight={activeBottomNav === "learn" ? "fill" : "regular"} />
-                <span className="text-[10px]">Learn</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveBottomNav("baptism");
-                  setMobileScreen("baptism");
-                }}
-                className={cn(
-                  "flex flex-col items-center gap-1 transition-all cursor-pointer",
-                  activeBottomNav === "baptism" ? "text-kumo-brand font-semibold" : "text-kumo-subtle hover:text-kumo-default"
-                )}
-              >
-                <Icons.ShieldCheck className="w-5 h-5" weight={activeBottomNav === "baptism" ? "fill" : "regular"} />
-                <span className="text-[10px]">Baptism</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveBottomNav("placement");
-                  setMobileScreen("placement");
-                }}
-                className={cn(
-                  "flex flex-col items-center gap-1 transition-all cursor-pointer",
-                  activeBottomNav === "placement" ? "text-kumo-brand font-semibold" : "text-kumo-subtle hover:text-kumo-default"
-                )}
-              >
-                <Icons.UsersThree className="w-5 h-5" weight={activeBottomNav === "placement" ? "fill" : "regular"} />
-                <span className="text-[10px]">Placement</span>
-              </button>
             </div>
           </div>
         )}
@@ -925,6 +862,80 @@ export function MemberPortalView() {
           <Icons.ArrowRight className="w-3.5 h-3.5" />
         </Button>
       </div>
+      {/* ============================================================ */}
+      {/* NATIVE APP BOTTOM NAVBAR — MEMBER PORTAL (BELIEVERS CLASS)   */}
+      {/* ============================================================ */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-kumo-base/95 backdrop-blur-xl border-t border-kumo-line py-2 px-4 shadow-xl">
+        <div className="max-w-md mx-auto flex items-center justify-around">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveBottomNav("home");
+              setMobileScreen("home");
+            }}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-all cursor-pointer py-1 px-3 rounded-xl active:scale-95",
+              mobileScreen === "home"
+                ? "text-kumo-brand font-bold"
+                : "text-kumo-subtle hover:text-kumo-default font-medium"
+            )}
+          >
+            <Icons.House className="w-5 h-5" weight={mobileScreen === "home" ? "fill" : "regular"} />
+            <span className="text-[10px]">Home</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setActiveBottomNav("learn");
+              setMobileScreen("player");
+            }}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-all cursor-pointer py-1 px-3 rounded-xl active:scale-95",
+              mobileScreen === "player"
+                ? "text-kumo-brand font-bold"
+                : "text-kumo-subtle hover:text-kumo-default font-medium"
+            )}
+          >
+            <Icons.BookOpen className="w-5 h-5" weight={mobileScreen === "player" ? "fill" : "regular"} />
+            <span className="text-[10px]">Academy</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setActiveBottomNav("baptism");
+              setMobileScreen("baptism");
+            }}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-all cursor-pointer py-1 px-3 rounded-xl active:scale-95",
+              mobileScreen === "baptism"
+                ? "text-kumo-brand font-bold"
+                : "text-kumo-subtle hover:text-kumo-default font-medium"
+            )}
+          >
+            <Icons.ShieldCheck className="w-5 h-5" weight={mobileScreen === "baptism" ? "fill" : "regular"} />
+            <span className="text-[10px]">Baptism</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setActiveBottomNav("placement");
+              setMobileScreen("placement");
+            }}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-all cursor-pointer py-1 px-3 rounded-xl active:scale-95",
+              mobileScreen === "placement"
+                ? "text-kumo-brand font-bold"
+                : "text-kumo-subtle hover:text-kumo-default font-medium"
+            )}
+          >
+            <Icons.UsersThree className="w-5 h-5" weight={mobileScreen === "placement" ? "fill" : "regular"} />
+            <span className="text-[10px]">Placement</span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 }

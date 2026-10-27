@@ -4,18 +4,12 @@ import React, { useState } from "react";
 import {
   Button,
   Input,
-  LayerCard,
   Badge,
-  Checkbox,
-  Dialog,
   cn,
   Icons,
 } from "@/design-system";
 import { useDemo } from "@/context/demo-context";
-import {
-  MissedServiceAlertCard,
-  DepartmentPlacementCard,
-} from "@/components/coza";
+import { MissedServiceAlertCard } from "@/components/coza";
 
 interface ZonalMember {
   id: string;
@@ -38,17 +32,17 @@ export function ZonalCoordinatorView() {
     roster,
     coldLeads,
     addColdLead,
-    assignMinistryDepartment,
     setCurrentPersona,
   } = useDemo();
 
+  // In-App Screen Tab: "queue" | "outreach" | "fellowships" | "report"
+  const [activeScreen, setActiveScreen] = useState<"queue" | "outreach" | "fellowships" | "report">("queue");
   const [activeZone] = useState("Maitama Extension");
-  const [activeFilter, setActiveFilter] = useState<"all" | "sla" | "saturday" | "absence">("all");
-  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<"all" | "sla">("all");
   const [reportSubmitted, setReportSubmitted] = useState(false);
-  const [whatsAppModalOpen, setWhatsAppModalOpen] = useState(false);
-  const [callLogModalOpen, setCallLogModalOpen] = useState(false);
-  const [callOutcome, setCallOutcome] = useState("Warmly welcomed; excited for water baptism and Saturday community");
+  const [whatsAppSuccess, setWhatsAppSuccess] = useState<string | null>(null);
+  const [callLogSuccess, setCallLogSuccess] = useState<string | null>(null);
+  const [callOutcome, setCallOutcome] = useState("Warmly welcomed; excited for baptism");
   const [prayerRequest, setPrayerRequest] = useState("Career breakthrough in civil service");
 
   // Saturday Outreach Contact logger
@@ -90,7 +84,7 @@ export function ZonalCoordinatorView() {
       name: "Brother Emmanuel Kalu",
       phone: "+234 813 444 9900",
       address: "Ministers Hill, Maitama",
-      hoursElapsed: 52, // Overdue SLA (>48h)
+      hoursElapsed: 52,
       contacted: false,
       addedToWhatsApp: false,
       invitedToSaturday: false,
@@ -128,7 +122,8 @@ export function ZonalCoordinatorView() {
   const handleSendWhatsAppSimulation = () => {
     toggleChecklist(selectedSoul.id, "contacted");
     toggleChecklist(selectedSoul.id, "addedToWhatsApp");
-    setWhatsAppModalOpen(false);
+    setWhatsAppSuccess(`Welcome message transmitted via WhatsApp to ${selectedSoul.name}`);
+    setTimeout(() => setWhatsAppSuccess(null), 3500);
   };
 
   const handleSaveCallOutcome = () => {
@@ -146,7 +141,8 @@ export function ZonalCoordinatorView() {
     if (selectedSoul.id === activeMember.id) {
       updateActiveMember({ zonalContacted: true });
     }
-    setCallLogModalOpen(false);
+    setCallLogSuccess(`Saved call log and prayer request for ${selectedSoul.name}`);
+    setTimeout(() => setCallLogSuccess(null), 3500);
   };
 
   const handleAddOutreachLead = () => {
@@ -160,7 +156,7 @@ export function ZonalCoordinatorView() {
     setOutreachSuccess(true);
     setStreetName("");
     setStreetPhone("");
-    setTimeout(() => setOutreachSuccess(false), 4000);
+    setTimeout(() => setOutreachSuccess(false), 3500);
   };
 
   const filteredMembers = zoneMembers.filter((m) => {
@@ -169,82 +165,53 @@ export function ZonalCoordinatorView() {
   });
 
   return (
-    <div className="space-y-4 sm:space-y-5 max-w-6xl mx-auto">
+    <div className="max-w-xl mx-auto pb-28 space-y-4">
       {/* Clean Zonal Header */}
-      <div className="p-3.5 sm:p-4 rounded-2xl border border-kumo-line bg-kumo-elevated flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-kumo-brand/10 border border-kumo-brand/30 flex items-center justify-center shrink-0">
-            <Icons.UsersThree className="w-4 h-4 text-kumo-brand" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-sm sm:text-base text-kumo-default">Zonal Pastoral Care</span>
-              <Badge variant="purple" className="text-[10px] py-0 px-1.5">{activeZone}</Badge>
+      <div className="p-3.5 sm:p-4 rounded-2xl border border-kumo-line bg-kumo-base shadow-xs space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-kumo-brand/10 border border-kumo-brand/30 flex items-center justify-center shrink-0">
+              <Icons.UsersThree className="w-4 h-4 text-kumo-brand" />
             </div>
-            <span className="text-[11px] text-kumo-subtle block">
-              Coordinator: Deaconess Sarah • 48h Care SLA
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="font-extrabold text-sm sm:text-base text-kumo-default truncate">Zonal Pastoral Care</span>
+                <Badge variant="purple" className="text-[10px] py-0 px-1.5 shrink-0">{activeZone}</Badge>
+              </div>
+              <span className="text-[11px] text-kumo-subtle truncate block">
+                Coordinator: Deaconess Sarah • 48h SLA Care
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1 shrink-0">
+            <span className="px-2 py-1 rounded-lg bg-kumo-elevated border border-kumo-hairline font-mono text-[11px] font-bold text-emerald-400">
+              67% SLA
             </span>
           </div>
         </div>
-
-        <Dialog.Root open={reportModalOpen} onOpenChange={setReportModalOpen}>
-          <Dialog.Trigger
-            render={(p) => (
-              <Button {...p} variant="primary" size="sm" className="gap-1.5 shrink-0 w-full sm:w-auto justify-center text-xs">
-                <Icons.FileText className="w-4 h-4" />
-                <span>Submit Weekly Report</span>
-              </Button>
-            )}
-          />
-          <Dialog size="base" className="p-4 sm:p-6 bg-kumo-base border border-kumo-line rounded-2xl space-y-4 max-w-lg w-[calc(100vw-2rem)] sm:w-full">
-            <Dialog.Title className="text-base font-bold text-kumo-default">
-              Saturday Evangelism & Zonal Report
-            </Dialog.Title>
-            <Dialog.Description className="text-xs text-kumo-subtle">
-              {activeZone} • Submitted weekly to Branch Pastor
-            </Dialog.Description>
-
-            <div className="p-3.5 sm:p-4 rounded-xl bg-kumo-recessed border border-kumo-hairline space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span className="text-kumo-subtle">Assigned Souls Contacted:</span>
-                <span className="font-semibold text-kumo-default">2 of 3 (67%)</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-kumo-subtle">Saturday Outreach Contacts:</span>
-                <span className="font-semibold text-kumo-default">{coldLeads.length} New Leads Logged</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-kumo-subtle">Workers Deployed on Field:</span>
-                <span className="font-semibold text-kumo-default">14 Evangelism Workers</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-kumo-subtle">Members Flagged for Absence:</span>
-                <span className="font-semibold text-rose-400">1 Member (Care Call Dispatched)</span>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-              <Dialog.Close render={(p) => <Button {...p} variant="outline" size="sm">Cancel</Button>} />
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => {
-                  setReportSubmitted(true);
-                  setReportModalOpen(false);
-                }}
-              >
-                Submit Report to Leadership
-              </Button>
-            </div>
-          </Dialog>
-        </Dialog.Root>
       </div>
 
+      {/* Notifications */}
+      {whatsAppSuccess && (
+        <div className="p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs flex items-center gap-2 shadow-xs">
+          <Icons.CheckCircle weight="fill" className="w-4 h-4 shrink-0" />
+          <span>{whatsAppSuccess}</span>
+        </div>
+      )}
+
+      {callLogSuccess && (
+        <div className="p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs flex items-center gap-2 shadow-xs">
+          <Icons.CheckCircle weight="fill" className="w-4 h-4 shrink-0" />
+          <span>{callLogSuccess}</span>
+        </div>
+      )}
+
       {reportSubmitted && (
-        <div className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs flex items-center justify-between gap-2 shadow-xs">
+        <div className="p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs flex items-center justify-between gap-2 shadow-xs">
           <div className="flex items-center gap-2">
             <Icons.CheckCircle weight="fill" className="w-4 h-4 shrink-0" />
-            <span>Weekly report successfully transmitted to Central Branch Administration.</span>
+            <span>Weekly pastoral report sent to Central Branch.</span>
           </div>
           <Button variant="ghost" size="xs" onClick={() => setReportSubmitted(false)}>
             Dismiss
@@ -252,174 +219,129 @@ export function ZonalCoordinatorView() {
         </div>
       )}
 
-      {/* Pastoral SLA Health Metric Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
-        <div className="p-3.5 rounded-xl border border-kumo-line bg-kumo-base space-y-1 shadow-xs">
-          <span className="text-[11px] text-kumo-subtle block font-medium">Zone Active Souls</span>
-          <p className="text-xl sm:text-2xl font-extrabold text-kumo-default font-mono">
-            {zoneMembers.length} Souls
-          </p>
-          <span className="text-[10px] text-kumo-brand font-medium">Maitama Ext. Zone</span>
-        </div>
-
-        <div className="p-3.5 rounded-xl border border-kumo-line bg-kumo-base space-y-1 shadow-xs">
-          <span className="text-[11px] text-kumo-subtle block font-medium">48-Hour SLA Compliance</span>
-          <p className="text-xl sm:text-2xl font-extrabold text-emerald-400 font-mono">
-            67%
-          </p>
-          <span className="text-[10px] text-kumo-subtle">Target: ≥ 90% (PRD ZON-01)</span>
-        </div>
-
-        <div className="p-3.5 rounded-xl border border-kumo-line bg-kumo-base space-y-1 shadow-xs">
-          <span className="text-[11px] text-kumo-subtle block font-medium">Overdue Attention (&gt;48h)</span>
-          <p className="text-xl sm:text-2xl font-extrabold text-rose-400 font-mono">
-            1 Soul
-          </p>
-          <span className="text-[10px] text-rose-400 font-medium">Auto-Escalation Flagged</span>
-        </div>
-
-        <div className="p-3.5 rounded-xl border border-kumo-line bg-kumo-base space-y-1 shadow-xs">
-          <span className="text-[11px] text-kumo-subtle block font-medium">Saturday Street Leads</span>
-          <p className="text-xl sm:text-2xl font-extrabold text-kumo-default font-mono">
-            {coldLeads.length} Leads
-          </p>
-          <span className="text-[10px] text-kumo-brand font-medium">Ready for Sunday Influx</span>
-        </div>
-      </div>
-
-      {/* Dual-Column Pastoral Command Deck */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-start">
-        {/* LEFT COLUMN: Soul Priority Queue & Navigation (5 cols) */}
-        <div className="lg:col-span-5 space-y-4">
-          <LayerCard className="p-3.5 sm:p-4 space-y-3 border border-kumo-line">
-            <div className="flex items-center justify-between pb-2 border-b border-kumo-hairline">
-              <span className="text-xs font-bold text-kumo-default">Pastoral Triage Queue</span>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setActiveFilter("all")}
-                  className={cn(
-                    "px-2.5 py-1 rounded-lg text-xs font-medium cursor-pointer transition-all",
-                    activeFilter === "all"
-                      ? "bg-kumo-elevated text-kumo-default font-bold shadow-xs"
-                      : "text-kumo-subtle hover:text-kumo-default"
-                  )}
-                >
-                  All ({zoneMembers.length})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveFilter("sla")}
-                  className={cn(
-                    "px-2.5 py-1 rounded-lg text-xs font-medium cursor-pointer transition-all",
-                    activeFilter === "sla"
-                      ? "bg-kumo-elevated text-rose-400 font-bold shadow-xs"
-                      : "text-kumo-subtle hover:text-kumo-default"
-                  )}
-                >
-                  Needs Call
-                </button>
-              </div>
-            </div>
-
-            {/* List of Member Cards */}
-            <div className="space-y-2">
-              {filteredMembers.map((member) => {
-                const isSelected = member.id === selectedSoulId;
-                const isOverdue = member.hoursElapsed > 48 && !member.contacted;
-
-                return (
-                  <button
-                    key={member.id}
-                    type="button"
-                    onClick={() => setSelectedSoulId(member.id)}
-                    className={cn(
-                      "w-full text-left p-3 rounded-xl border transition-all cursor-pointer flex flex-col space-y-2",
-                      isSelected
-                        ? "border-kumo-brand bg-kumo-elevated ring-1 ring-kumo-brand shadow-xs"
-                        : "border-kumo-hairline bg-kumo-base hover:bg-kumo-elevated"
-                    )}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <div className="font-bold text-xs sm:text-sm text-kumo-default">{member.name}</div>
-                        <div className="text-[11px] text-kumo-subtle truncate max-w-[200px]">{member.address}</div>
-                      </div>
-
-                      <Badge
-                        variant={member.contacted ? "success" : isOverdue ? "error" : "warning"}
-                        className="text-[10px] shrink-0"
-                      >
-                        {member.contacted
-                          ? "Contacted ✓"
-                          : isOverdue
-                          ? `Overdue (${member.hoursElapsed}h)`
-                          : `${member.hoursElapsed}h / 48h`}
-                      </Badge>
-                    </div>
-
-                    <div className="flex items-center justify-between text-[10px] pt-1 border-t border-kumo-hairline text-kumo-inactive">
-                      <span>{member.phone}</span>
-                      <span className="text-kumo-brand font-medium">Inspect Profile →</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </LayerCard>
-
-          {/* Saturday Roadshow Lead Logger (PRD EVA-01) */}
-          <LayerCard className="p-4 space-y-3 border border-kumo-line">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Icons.UserPlus className="w-4 h-4 text-emerald-400" />
-                <span className="text-xs font-bold text-kumo-default">Log Saturday Street Lead</span>
-              </div>
-              <Badge variant="purple">EVA-01</Badge>
-            </div>
-
-            <p className="text-[11px] text-kumo-subtle">
-              Street outreach contact collection. Saved leads auto-reconcile when they walk into church on Sunday.
-            </p>
-
-            <div className="space-y-2.5">
-              <Input
-                placeholder="Full Name (e.g. Sister Mercy)"
-                value={streetName}
-                onChange={(e) => setStreetName(e.target.value)}
-                aria-label="Street lead full name"
-              />
-              <Input
-                placeholder="Phone (+234 800 000 0000)"
-                value={streetPhone}
-                onChange={(e) => setStreetPhone(e.target.value)}
-                aria-label="Street lead phone number"
-              />
-              <Input
-                placeholder="Location (e.g. Maitama Farmers Market)"
-                value={streetLocation}
-                onChange={(e) => setStreetLocation(e.target.value)}
-                aria-label="Street lead outreach location"
-              />
-
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleAddOutreachLead}
-                className="w-full justify-center text-xs gap-1.5"
+      {/* ============================================================ */}
+      {/* TAB 1: 48H SLA SOUL CARE QUEUE                              */}
+      {/* ============================================================ */}
+      {activeScreen === "queue" && (
+        <div className="space-y-3">
+          {/* Filter Pills */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-xs">
+              <button
+                type="button"
+                onClick={() => setActiveFilter("all")}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg border font-semibold transition-all cursor-pointer whitespace-nowrap",
+                  activeFilter === "all"
+                    ? "bg-kumo-elevated border-kumo-brand ring-1 ring-kumo-brand text-kumo-default"
+                    : "bg-kumo-base border-kumo-hairline text-kumo-subtle hover:text-kumo-default"
+                )}
               >
-                <Icons.Check className="w-4 h-4" />
-                <span>Save Evangelism Contact</span>
-              </Button>
+                All Assigned ({zoneMembers.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveFilter("sla")}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg border font-semibold transition-all cursor-pointer whitespace-nowrap",
+                  activeFilter === "sla"
+                    ? "bg-kumo-elevated border-kumo-brand ring-1 ring-kumo-brand text-kumo-default"
+                    : "bg-kumo-base border-kumo-hairline text-kumo-subtle hover:text-kumo-default"
+                )}
+              >
+                Needs Call
+              </button>
             </div>
+            <span className="text-[11px] text-kumo-subtle">48h SLA Window</span>
+          </div>
 
-            {outreachSuccess && (
-              <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-xs flex items-center gap-2">
-                <Icons.CheckCircle weight="fill" className="w-4 h-4 shrink-0" />
-                <span>Contact recorded in Central Evangelism Database.</span>
-              </div>
-            )}
-          </LayerCard>
+          {/* Member Soul Cards with Direct Action */}
+          <div className="space-y-2.5">
+            {filteredMembers.map((member) => {
+              const isOverdue = member.hoursElapsed > 48 && !member.contacted;
+
+              return (
+                <div
+                  key={member.id}
+                  className="p-3.5 rounded-xl border border-kumo-line bg-kumo-base space-y-3 shadow-xs"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="space-y-0.5 min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-bold text-xs sm:text-sm text-kumo-default">{member.name}</span>
+                        <Badge
+                          variant={member.contacted ? "success" : isOverdue ? "error" : "warning"}
+                          className="text-[10px] py-0 px-1.5"
+                        >
+                          {member.contacted
+                            ? "Welcomed ✓"
+                            : isOverdue
+                            ? `Overdue (${member.hoursElapsed}h)`
+                            : `${member.hoursElapsed}h / 48h`}
+                        </Badge>
+                      </div>
+                      <span className="text-[11px] text-kumo-subtle block">{member.phone} • {member.address}</span>
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="xs"
+                      onClick={() => {
+                        setSelectedSoulId(member.id);
+                        setActiveScreen("outreach");
+                      }}
+                      className="text-xs shrink-0 gap-1 font-semibold"
+                    >
+                      <Icons.ChatCircleDots className="w-3.5 h-3.5 text-kumo-brand" />
+                      <span>Reach Out</span>
+                    </Button>
+                  </div>
+
+                  {/* 3-Point Checklist */}
+                  <div className="grid grid-cols-3 gap-1.5 pt-2 border-t border-kumo-hairline text-[11px]">
+                    <button
+                      type="button"
+                      onClick={() => toggleChecklist(member.id, "contacted")}
+                      className={cn(
+                        "p-1.5 rounded-lg border text-center transition-all cursor-pointer font-medium truncate",
+                        member.contacted
+                          ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                          : "bg-kumo-recessed border-kumo-hairline text-kumo-subtle"
+                      )}
+                    >
+                      {member.contacted ? "✓ Welcomed" : "○ Call"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => toggleChecklist(member.id, "addedToWhatsApp")}
+                      className={cn(
+                        "p-1.5 rounded-lg border text-center transition-all cursor-pointer font-medium truncate",
+                        member.addedToWhatsApp
+                          ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                          : "bg-kumo-recessed border-kumo-hairline text-kumo-subtle"
+                      )}
+                    >
+                      {member.addedToWhatsApp ? "✓ WhatsApp" : "○ WhatsApp"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => toggleChecklist(member.id, "invitedToSaturday")}
+                      className={cn(
+                        "p-1.5 rounded-lg border text-center transition-all cursor-pointer font-medium truncate",
+                        member.invitedToSaturday
+                          ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                          : "bg-kumo-recessed border-kumo-hairline text-kumo-subtle"
+                      )}
+                    >
+                      {member.invitedToSaturday ? "✓ Fellowship" : "○ Fellowship"}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
           {/* Absence Watchlist Alert */}
           {atRiskMember && (
@@ -434,212 +356,47 @@ export function ZonalCoordinatorView() {
             />
           )}
         </div>
+      )}
 
-        {/* RIGHT COLUMN: Active Soul Care Workspace (7 cols) */}
-        <div className="lg:col-span-7 space-y-4">
-          <LayerCard className="p-4 sm:p-5 space-y-4 border border-kumo-line">
-            {/* Header with Selected Member Identity */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-kumo-hairline">
+      {/* ============================================================ */}
+      {/* TAB 2: OUTREACH & PASTORAL CALL LOGGER                      */}
+      {/* ============================================================ */}
+      {activeScreen === "outreach" && (
+        <div className="space-y-3">
+          {/* Target Soul Card */}
+          <div className="p-4 rounded-2xl border border-kumo-line bg-kumo-base space-y-3">
+            <div className="flex items-center justify-between">
               <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="font-extrabold text-base text-kumo-default">{selectedSoul.name}</h3>
-                  <Badge variant="blue" className="text-xs">{activeZone}</Badge>
-                </div>
-                <div className="text-xs text-kumo-subtle mt-0.5">
-                  Phone: <strong className="text-kumo-default">{selectedSoul.phone}</strong> • {selectedSoul.address}
-                </div>
+                <span className="text-[11px] text-kumo-subtle block">Outreach Recipient</span>
+                <span className="font-bold text-sm sm:text-base text-kumo-default">{selectedSoul.name}</span>
               </div>
-
-              {/* Fast Action Buttons */}
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="xs"
-                  onClick={() => setWhatsAppModalOpen(true)}
-                  className="gap-1.5 text-xs text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10"
-                >
-                  <Icons.ChatCircleDots className="w-4 h-4" />
-                  <span>WhatsApp Welcome</span>
-                </Button>
-
-                <Button
-                  variant="outline"
-                  size="xs"
-                  onClick={() => setCallLogModalOpen(true)}
-                  className="gap-1.5 text-xs text-kumo-brand"
-                >
-                  <Icons.Phone className="w-4 h-4" />
-                  <span>Log Call</span>
-                </Button>
-              </div>
+              <Badge variant="purple" className="text-xs">{selectedSoul.phone}</Badge>
             </div>
 
-            {/* Discipleship Milestones Pipeline */}
-            <div className="space-y-1.5">
-              <span className="text-xs font-bold text-kumo-default uppercase tracking-wide">
-                Spiritual Assimilation Milestones
-              </span>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                <div className="p-2.5 rounded-xl border border-kumo-hairline bg-kumo-elevated space-y-1">
-                  <span className="text-[10px] text-kumo-subtle block">1. Transit</span>
-                  <span className="font-semibold text-emerald-400 flex items-center gap-1">
-                    <Icons.Check className="w-3.5 h-3.5" /> Bus 4 Boarded
-                  </span>
-                </div>
-                <div className="p-2.5 rounded-xl border border-kumo-hairline bg-kumo-elevated space-y-1">
-                  <span className="text-[10px] text-kumo-subtle block">2. Foyer Check-in</span>
-                  <span className="font-semibold text-emerald-400 flex items-center gap-1">
-                    <Icons.Check className="w-3.5 h-3.5" /> Present 08:35
-                  </span>
-                </div>
-                <div className="p-2.5 rounded-xl border border-kumo-hairline bg-kumo-elevated space-y-1">
-                  <span className="text-[10px] text-kumo-subtle block">3. Believers&apos; Class</span>
-                  <span className="font-semibold text-kumo-brand flex items-center gap-1">
-                    <Icons.Sparkle className="w-3.5 h-3.5" /> 3 of 4 Done
-                  </span>
-                </div>
-                <div className="p-2.5 rounded-xl border border-kumo-hairline bg-kumo-elevated space-y-1">
-                  <span className="text-[10px] text-kumo-subtle block">4. Water Baptism</span>
-                  <span className="font-semibold text-purple-400 flex items-center gap-1">
-                    <Icons.ShieldCheck className="w-3.5 h-3.5" /> Scheduled
-                  </span>
-                </div>
+            {/* Quick WhatsApp Action */}
+            <div className="p-3 rounded-xl bg-kumo-elevated border border-kumo-hairline space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-kumo-default">WhatsApp Welcome Template</span>
+                <Badge variant="green" className="text-[10px]">1-Tap</Badge>
               </div>
-            </div>
-
-            {/* Pastoral Checklist */}
-            <div className="p-3.5 rounded-xl bg-kumo-recessed border border-kumo-hairline space-y-2.5 text-xs">
-              <span className="font-semibold text-kumo-default block">Pastoral Care Responsibilities:</span>
-              <div className="space-y-2">
-                <label className="flex items-center gap-2.5 cursor-pointer">
-                  <Checkbox
-                    checked={selectedSoul.contacted}
-                    onCheckedChange={() => toggleChecklist(selectedSoul.id, "contacted")}
-                  />
-                  <span className={cn(selectedSoul.contacted ? "text-kumo-default line-through" : "text-kumo-default")}>
-                    Conduct 48-Hour Pastoral Welcome Call
-                  </span>
-                </label>
-
-                <label className="flex items-center gap-2.5 cursor-pointer">
-                  <Checkbox
-                    checked={selectedSoul.addedToWhatsApp}
-                    onCheckedChange={() => toggleChecklist(selectedSoul.id, "addedToWhatsApp")}
-                  />
-                  <span className={cn(selectedSoul.addedToWhatsApp ? "text-kumo-default line-through" : "text-kumo-default")}>
-                    Add to Maitama Extension Zone WhatsApp Community Hub
-                  </span>
-                </label>
-
-                <label className="flex items-center gap-2.5 cursor-pointer">
-                  <Checkbox
-                    checked={selectedSoul.invitedToSaturday}
-                    onCheckedChange={() => toggleChecklist(selectedSoul.id, "invitedToSaturday")}
-                  />
-                  <span className={cn(selectedSoul.invitedToSaturday ? "text-kumo-default line-through" : "text-kumo-default")}>
-                    Invite to Saturday Neighborhood Fellowship (Topic: Kingdom Marketplace Dominion)
-                  </span>
-                </label>
-              </div>
-            </div>
-
-            {/* Pastoral Notes & Prayer */}
-            {selectedSoul.notes && (
-              <div className="p-3 rounded-xl border border-kumo-hairline bg-kumo-base text-xs space-y-1">
-                <span className="font-semibold text-kumo-subtle block">Pastoral Record Notes:</span>
-                <p className="text-kumo-default leading-relaxed italic">{selectedSoul.notes}</p>
-              </div>
-            )}
-
-            {/* Stage 5: Department Placement Card */}
-            <DepartmentPlacementCard
-              memberName={selectedSoul.name}
-              currentDepartment={selectedSoul.department || activeMember.department}
-              currentMentor={selectedSoul.mentor || activeMember.spiritualMentor}
-              onSelectPlacement={(dept, mentor) => {
-                assignMinistryDepartment(dept, mentor);
-                setZoneMembers((prev) =>
-                  prev.map((m) =>
-                    m.id === selectedSoul.id ? { ...m, department: dept, mentor } : m
-                  )
-                );
-              }}
-            />
-
-            {/* Navigation Transition */}
-            <div className="pt-3 border-t border-kumo-hairline flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 text-xs">
-              <span className="text-kumo-subtle text-center sm:text-left">
-                Zonal care active. Senior Pastors can monitor global church assimilation health.
-              </span>
+              <p className="text-[11px] text-kumo-subtle italic bg-kumo-recessed p-2.5 rounded-lg border border-kumo-hairline">
+                &ldquo;Dear {selectedSoul.name.split(" ")[1] || selectedSoul.name}, welcome to COZA! We are thrilled to host you. Your coordinator Deaconess Sarah is available for any prayers or questions.&rdquo;
+              </p>
               <Button
-                variant="secondary"
+                variant="primary"
                 size="sm"
-                onClick={() => setCurrentPersona("executive-dashboard")}
-                className="gap-1.5 w-full sm:w-auto justify-center"
+                onClick={handleSendWhatsAppSimulation}
+                className="w-full justify-center gap-1.5 text-xs font-bold py-2"
               >
-                <span>View Senior Pastor Analytics</span>
-                <Icons.ArrowRight className="w-3.5 h-3.5" />
+                <Icons.ChatCircleDots className="w-4 h-4" />
+                <span>Transmit Official WhatsApp Welcome</span>
               </Button>
             </div>
-          </LayerCard>
-        </div>
-      </div>
 
-      {/* WhatsApp Welcome Message Modal */}
-      <Dialog.Root open={whatsAppModalOpen} onOpenChange={setWhatsAppModalOpen}>
-        <Dialog size="base" className="p-4 sm:p-6 bg-kumo-base border border-kumo-line rounded-2xl space-y-4 max-w-lg w-[calc(100vw-2rem)] sm:w-full">
-          <Dialog.Title className="text-base font-bold text-kumo-default flex items-center gap-2">
-            <Icons.ChatCircleDots className="w-5 h-5 text-emerald-400" />
-            <span>Official Pastoral Welcome Script</span>
-          </Dialog.Title>
-          <Dialog.Description className="text-xs text-kumo-subtle">
-            Pre-approved message template for new souls assigned to {activeZone}.
-          </Dialog.Description>
-
-          <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20 text-xs text-kumo-default space-y-2 leading-relaxed">
-            <p>
-              &ldquo;Good day <strong>{selectedSoul.name}</strong>! This is Deaconess Sarah from COZA Maitama Extension Zone.
-            </p>
-            <p>
-              The Senior Pastor, Rev. Biodun Fatoyinbo, Pastor Modele, and our entire church family were delighted to have you in service today! We celebrate the supernatural hand of God upon your life.
-            </p>
-            <p>
-              I am reaching out to personally welcome you, share this week&apos;s devotionals, and check if you have any prayer requests we can bring before the Lord together. We also warmly invite you to our Saturday Community Hangout at Maitama Farmers Market at 10:00 AM.
-            </p>
-            <p>
-              God bless you richly!&rdquo;
-            </p>
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <Dialog.Close render={(p) => <Button {...p} variant="outline" size="sm">Cancel</Button>} />
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handleSendWhatsAppSimulation}
-              className="gap-1.5 bg-emerald-600 hover:bg-emerald-700"
-            >
-              <Icons.Check className="w-4 h-4" />
-              <span>Simulate Send & Check Off SLA</span>
-            </Button>
-          </div>
-        </Dialog>
-      </Dialog.Root>
-
-      {/* Call Outcome Log Modal */}
-      <Dialog.Root open={callLogModalOpen} onOpenChange={setCallLogModalOpen}>
-        <Dialog size="base" className="p-4 sm:p-6 bg-kumo-base border border-kumo-line rounded-2xl space-y-4 max-w-lg w-[calc(100vw-2rem)] sm:w-full">
-          <Dialog.Title className="text-base font-bold text-kumo-default">
-            Log Pastoral Call Outcome
-          </Dialog.Title>
-          <Dialog.Description className="text-xs text-kumo-subtle">
-            Document prayer needs and spiritual welfare for {selectedSoul.name}.
-          </Dialog.Description>
-
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <span className="text-xs font-semibold text-kumo-subtle block">Call Status:</span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+            {/* Pastoral Call Logger */}
+            <div className="space-y-2.5 pt-2 border-t border-kumo-hairline">
+              <span className="text-xs font-bold text-kumo-default block">Pastoral Call Outcome</span>
+              <div className="grid grid-cols-2 gap-1.5">
                 {[
                   "Warmly welcomed; excited for baptism",
                   "Requested pastoral counseling",
@@ -651,7 +408,7 @@ export function ZonalCoordinatorView() {
                     type="button"
                     onClick={() => setCallOutcome(status)}
                     className={cn(
-                      "p-2 rounded-lg border text-left text-xs transition-all cursor-pointer",
+                      "p-2 rounded-lg border text-left text-[11px] transition-all cursor-pointer truncate",
                       callOutcome === status
                         ? "bg-kumo-elevated border-kumo-brand ring-1 ring-kumo-brand text-kumo-default font-semibold"
                         : "bg-kumo-recessed border-kumo-hairline text-kumo-subtle"
@@ -661,25 +418,244 @@ export function ZonalCoordinatorView() {
                   </button>
                 ))}
               </div>
+
+              <Input
+                label="Prayer Request"
+                placeholder="e.g. Job interview on Thursday, family peace"
+                value={prayerRequest}
+                onChange={(e) => setPrayerRequest(e.target.value)}
+                aria-label="Pastoral prayer request"
+              />
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSaveCallOutcome}
+                className="w-full justify-center gap-1.5 text-xs font-semibold py-2"
+              >
+                <Icons.Check className="w-3.5 h-3.5" />
+                <span>Save Pastoral Call Notes</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* Saturday Street Soul Logger */}
+          <div className="p-4 rounded-2xl border border-kumo-line bg-kumo-base space-y-3">
+            <span className="text-xs font-bold text-kumo-default block">Log Saturday Street Soul</span>
+            <div className="space-y-2">
+              <Input
+                placeholder="Full Name (e.g. Sister Mercy)"
+                value={streetName}
+                onChange={(e) => setStreetName(e.target.value)}
+                aria-label="Street soul full name"
+              />
+              <Input
+                placeholder="Phone (+234 800 000 0000)"
+                value={streetPhone}
+                onChange={(e) => setStreetPhone(e.target.value)}
+                aria-label="Street soul phone number"
+              />
+              <Input
+                placeholder="Location (e.g. Maitama Farmers Market)"
+                value={streetLocation}
+                onChange={(e) => setStreetLocation(e.target.value)}
+                aria-label="Street soul location"
+              />
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleAddOutreachLead}
+                disabled={!streetName.trim() || !streetPhone.trim()}
+                className="w-full justify-center text-xs font-bold py-2"
+              >
+                <Icons.Plus className="w-3.5 h-3.5" />
+                <span>Save Outreach Contact</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* TAB 3: HOUSE FELLOWSHIPS & CENTERS                          */}
+      {/* ============================================================ */}
+      {activeScreen === "fellowships" && (
+        <div className="space-y-3">
+          <div className="p-4 rounded-2xl border border-kumo-line bg-kumo-base space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-sm text-kumo-default">House Fellowship Cell Centers</h3>
+                <p className="text-[11px] text-kumo-subtle">Maitama Extension Pastoral Zones</p>
+              </div>
+              <Badge variant="purple" className="text-xs font-bold">3 Centers</Badge>
             </div>
 
-            <Input
-              label="Specific Prayer Request"
-              placeholder="e.g. Job interview on Thursday, housing stability"
-              value={prayerRequest}
-              onChange={(e) => setPrayerRequest(e.target.value)}
-              aria-label="Pastoral prayer request"
-            />
+            <div className="space-y-2.5">
+              {[
+                {
+                  name: "Maitama Farmers Market Hub",
+                  host: "Elder & Deaconess Johnson",
+                  address: "Plot 42, Aguiyi Ironsi Way",
+                  time: "Tuesdays 6:00 PM",
+                  membersCount: 14,
+                },
+                {
+                  name: "Ministers Hill Sanctuary Cell",
+                  host: "Bro. Collins & Sis. Esther",
+                  address: "No. 8 Rhine Street, Maitama",
+                  time: "Tuesdays 6:00 PM",
+                  membersCount: 9,
+                },
+                {
+                  name: "Guzape View Fellowship Hub",
+                  host: "Pastor & Mrs. Adebayo",
+                  address: "12 Asokoro Ext., Guzape Hills",
+                  time: "Saturdays 5:00 PM",
+                  membersCount: 19,
+                },
+              ].map((cell) => (
+                <div
+                  key={cell.name}
+                  className="p-3 rounded-xl border border-kumo-hairline bg-kumo-elevated space-y-1.5 text-xs"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-kumo-default">{cell.name}</span>
+                    <Badge variant="blue" className="text-[10px]">{cell.membersCount} Souls</Badge>
+                  </div>
+                  <span className="text-[11px] text-kumo-subtle block">Host: {cell.host}</span>
+                  <div className="flex items-center justify-between text-[10px] text-kumo-inactive pt-1 border-t border-kumo-hairline">
+                    <span>{cell.address}</span>
+                    <span className="text-kumo-brand font-medium">{cell.time}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
+        </div>
+      )}
 
-          <div className="flex justify-end gap-2 pt-2">
-            <Dialog.Close render={(p) => <Button {...p} variant="outline" size="sm">Cancel</Button>} />
-            <Button variant="primary" size="sm" onClick={handleSaveCallOutcome}>
-              Save to Pastoral Record
+      {/* ============================================================ */}
+      {/* TAB 4: WEEKLY REPORT & ANALYTICS                             */}
+      {/* ============================================================ */}
+      {activeScreen === "report" && (
+        <div className="space-y-3">
+          <div className="p-4 rounded-2xl border border-kumo-line bg-kumo-base space-y-3">
+            <h3 className="font-bold text-sm text-kumo-default">Weekly Zonal Pastoral Summary</h3>
+
+            <div className="p-3.5 rounded-xl bg-kumo-recessed border border-kumo-hairline space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-kumo-subtle">Assigned Souls Contacted:</span>
+                <span className="font-semibold text-kumo-default">2 of 3 (67%)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-kumo-subtle">Saturday Street Leads:</span>
+                <span className="font-semibold text-kumo-default">{coldLeads.length} Logged</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-kumo-subtle">Active Cell Fellowship Hosts:</span>
+                <span className="font-semibold text-kumo-default">3 Operating Centers</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-kumo-subtle">Absence Retention Alerts:</span>
+                <span className="font-semibold text-rose-400">1 Soul Flagged</span>
+              </div>
+            </div>
+
+            <Button
+              variant="primary"
+              size="base"
+              onClick={() => setReportSubmitted(true)}
+              className="w-full justify-center gap-1.5 text-xs font-bold py-2.5 shadow-md"
+            >
+              <Icons.FileText className="w-4 h-4" />
+              <span>Submit Weekly Report to Leadership</span>
             </Button>
           </div>
-        </Dialog>
-      </Dialog.Root>
+
+          {/* Transition Prompt to Senior Pastor */}
+          <div className="p-4 rounded-2xl border border-kumo-line bg-kumo-base space-y-2">
+            <div className="flex items-center gap-2">
+              <Icons.ChartBar className="w-4 h-4 text-kumo-brand" />
+              <span className="font-bold text-xs text-kumo-default">Senior Pastor Global Overview</span>
+            </div>
+            <p className="text-xs text-kumo-subtle">
+              Review campus-level assimilation performance and retention conversion rates.
+            </p>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setCurrentPersona("executive-dashboard")}
+              className="w-full justify-center gap-1.5 text-xs font-semibold"
+            >
+              <span>Switch to Senior Pastor Dashboard</span>
+              <Icons.ArrowRight className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* NATIVE APP BOTTOM NAVBAR — ZONAL COORDINATOR                 */}
+      {/* ============================================================ */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-kumo-base/95 backdrop-blur-xl border-t border-kumo-line py-2 px-4 shadow-xl">
+        <div className="max-w-md mx-auto flex items-center justify-around">
+          <button
+            type="button"
+            onClick={() => setActiveScreen("queue")}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-all cursor-pointer py-1 px-3 rounded-xl active:scale-95",
+              activeScreen === "queue"
+                ? "text-kumo-brand font-bold"
+                : "text-kumo-subtle hover:text-kumo-default font-medium"
+            )}
+          >
+            <Icons.Clock className="w-5 h-5" weight={activeScreen === "queue" ? "fill" : "regular"} />
+            <span className="text-[10px]">48h Queue</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveScreen("outreach")}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-all cursor-pointer py-1 px-3 rounded-xl active:scale-95",
+              activeScreen === "outreach"
+                ? "text-kumo-brand font-bold"
+                : "text-kumo-subtle hover:text-kumo-default font-medium"
+            )}
+          >
+            <Icons.ChatCircleDots className="w-5 h-5" weight={activeScreen === "outreach" ? "fill" : "regular"} />
+            <span className="text-[10px]">Outreach</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveScreen("fellowships")}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-all cursor-pointer py-1 px-3 rounded-xl active:scale-95",
+              activeScreen === "fellowships"
+                ? "text-kumo-brand font-bold"
+                : "text-kumo-subtle hover:text-kumo-default font-medium"
+            )}
+          >
+            <Icons.House className="w-5 h-5" weight={activeScreen === "fellowships" ? "fill" : "regular"} />
+            <span className="text-[10px]">Cells</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveScreen("report")}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-all cursor-pointer py-1 px-3 rounded-xl active:scale-95",
+              activeScreen === "report"
+                ? "text-kumo-brand font-bold"
+                : "text-kumo-subtle hover:text-kumo-default font-medium"
+            )}
+          >
+            <Icons.FileText className="w-5 h-5" weight={activeScreen === "report" ? "fill" : "regular"} />
+            <span className="text-[10px]">Report</span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 }

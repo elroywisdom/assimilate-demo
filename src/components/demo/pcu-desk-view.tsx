@@ -28,12 +28,14 @@ export function PcuDeskView() {
     activeMember,
   } = useDemo();
 
-  const [activeTab, setActiveTab] = useState<"all" | "reconcile" | "gifts" | "late">("all");
+  // In-App Screen Tab: "desk" | "manifest" | "walkin" | "gifts"
+  const [activeScreen, setActiveScreen] = useState<"desk" | "manifest" | "walkin" | "gifts">("desk");
+  const [activeTab, setActiveTab] = useState<"all" | "late">("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [walkInModalOpen, setWalkInModalOpen] = useState(false);
   const [qrScanSuccess, setQrScanSuccess] = useState<string | null>(null);
   const [manifestBatchSynced, setManifestBatchSynced] = useState(false);
   const [giftModalMember, setGiftModalMember] = useState<{ id: string; name: string; zone: string } | null>(null);
+  const [walkInSuccessMsg, setWalkInSuccessMsg] = useState<string | null>(null);
 
   // New Walk-In State
   const [walkInName, setWalkInName] = useState("");
@@ -55,7 +57,6 @@ export function PcuDeskView() {
   const totalPresent = roster.filter(
     (m) => m.checkInStatus === "present" || m.checkInStatus === "late"
   ).length;
-  const lateCount = roster.filter((m) => m.checkInStatus === "late").length;
 
   const filteredRoster = roster.filter((m) => {
     const matchesSearch =
@@ -63,10 +64,6 @@ export function PcuDeskView() {
       m.phone.includes(searchQuery);
 
     if (!matchesSearch) return false;
-    if (activeTab === "reconcile") return m.source === "bus";
-    if (activeTab === "gifts") {
-      return m.giftStatus === "eligible" || m.giftStatus === "dispatched" || m.classStatus === "completed";
-    }
     if (activeTab === "late") return m.checkInStatus === "late" || m.checkInStatus === "unmarked";
     return true;
   });
@@ -119,10 +116,10 @@ export function PcuDeskView() {
   };
 
   const handleCreateWalkIn = () => {
-    if (!walkInName) return;
+    if (!walkInName.trim()) return;
     const newGuest = {
       id: `walkin-${Date.now()}`,
-      name: walkInName,
+      name: walkInName.trim(),
       phone: walkInPhone || "+234 812 000 0000",
       address: "Guzape Foyer Walk-In",
       maritalStatus: "Single" as const,
@@ -147,164 +144,51 @@ export function PcuDeskView() {
     };
 
     addMemberToRoster(newGuest);
+    setWalkInSuccessMsg(`Checked in ${walkInName.trim()} • Badge Issued`);
     setWalkInName("");
     setWalkInPhone("");
-    setWalkInModalOpen(false);
+    setTimeout(() => {
+      setWalkInSuccessMsg(null);
+      setActiveScreen("desk");
+    }, 1500);
   };
 
   return (
-    <div className="space-y-4 sm:space-y-5 max-w-6xl mx-auto">
+    <div className="max-w-2xl mx-auto pb-28 space-y-4">
       {/* Clean Foyer Header */}
-      <div className="p-3.5 sm:p-4 rounded-2xl border border-kumo-line bg-kumo-elevated flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-kumo-brand/10 border border-kumo-brand/30 flex items-center justify-center shrink-0">
-            <Icons.IdentificationCard className="w-4 h-4 text-kumo-brand" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-sm sm:text-base text-kumo-default">PCU Foyer Desk</span>
-              <Badge variant="purple" className="text-[10px] py-0 px-1.5">Desk 02</Badge>
+      <div className="p-3.5 sm:p-4 rounded-2xl border border-kumo-line bg-kumo-base shadow-xs space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-kumo-brand/10 border border-kumo-brand/30 flex items-center justify-center shrink-0">
+              <Icons.IdentificationCard className="w-4 h-4 text-kumo-brand" />
             </div>
-            <span className="text-[11px] text-kumo-subtle block">
-              Guzape Campus Main Entrance
-            </span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="font-extrabold text-sm sm:text-base text-kumo-default truncate">PCU Foyer Desk</span>
+                <Badge variant="purple" className="text-[10px] py-0 px-1.5 shrink-0">Desk 02</Badge>
+              </div>
+              <span className="text-[11px] text-kumo-subtle truncate block">
+                Guzape Campus Entrance • {1420 + totalPresent} In Sanctuary
+              </span>
+            </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-2 self-stretch sm:self-center shrink-0">
           <Button
             variant="outline"
-            size="sm"
+            size="xs"
             onClick={handleSimulateQrScan}
-            className="text-xs flex-1 sm:flex-none justify-center gap-1.5 py-2"
+            className="text-xs shrink-0 gap-1 font-semibold"
             aria-label="Simulate QR Scan"
           >
             <Icons.QrCode className="w-3.5 h-3.5 text-kumo-brand" />
             <span>Scan Pass</span>
           </Button>
-
-          <Dialog.Root open={walkInModalOpen} onOpenChange={setWalkInModalOpen}>
-            <Dialog.Trigger
-              render={(p) => (
-                <Button
-                  {...p}
-                  variant="primary"
-                  size="sm"
-                  className="gap-1.5 flex-1 sm:flex-none justify-center text-xs font-semibold py-2"
-                >
-                  <Icons.UserPlus className="w-3.5 h-3.5" />
-                  <span>+ Walk-In</span>
-                </Button>
-              )}
-            />
-            <Dialog size="base" className="p-4 sm:p-6 bg-kumo-base border border-kumo-line rounded-2xl space-y-4 max-w-lg w-[calc(100vw-2rem)] sm:w-full">
-              <Dialog.Title className="text-base font-bold text-kumo-default">
-                Register Physical Foyer Walk-In
-              </Dialog.Title>
-              <Dialog.Description className="text-xs text-kumo-subtle">
-                Captured at PCU Service Desk for first-time visitors with no smartphone.
-              </Dialog.Description>
-
-              <div className="space-y-3">
-                <Input
-                  label="Full Name"
-                  placeholder="e.g. Sister Grace Obi"
-                  value={walkInName}
-                  onChange={(e) => setWalkInName(e.target.value)}
-                  aria-label="Full name of walk in guest"
-                />
-
-                <Input
-                  label="Phone Number"
-                  placeholder="+234 800 000 0000"
-                  value={walkInPhone}
-                  onChange={(e) => setWalkInPhone(e.target.value)}
-                  aria-label="Phone number of walk in guest"
-                />
-
-                <div className="space-y-1">
-                  <span className="text-xs font-semibold text-kumo-subtle block">Residential Zone</span>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {["Maitama Extension", "Garki Zone 3", "Wuse 2 Hub", "Guzape Hills"].map((z) => (
-                      <button
-                        key={z}
-                        type="button"
-                        onClick={() => setWalkInZone(z)}
-                        className={cn(
-                          "py-1.5 px-2.5 rounded-lg border text-left text-xs transition-all cursor-pointer",
-                          walkInZone === z
-                            ? "bg-kumo-elevated border-kumo-brand ring-1 ring-kumo-brand text-kumo-default font-semibold"
-                            : "bg-kumo-recessed border-kumo-hairline text-kumo-subtle"
-                        )}
-                      >
-                        {z}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <Dialog.Close render={(p) => <Button {...p} variant="outline" size="sm">Cancel</Button>} />
-                <Button variant="primary" size="sm" onClick={handleCreateWalkIn}>
-                  Check In & Issue Physical Badge
-                </Button>
-              </div>
-            </Dialog>
-          </Dialog.Root>
         </div>
       </div>
 
-      {/* Live Foyer Attendance Reconciler Metrics Bar */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
-        <div className="p-3.5 rounded-xl border border-kumo-line bg-kumo-base space-y-1 shadow-xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] text-kumo-subtle font-medium">Total In Sanctuary</span>
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          </div>
-          <p className="text-xl sm:text-2xl font-extrabold text-kumo-default font-mono">
-            {1420 + totalPresent}
-          </p>
-          <span className="text-[10px] text-emerald-400 font-medium">● Live 1st Service Influx</span>
-        </div>
-
-        <div className="p-3.5 rounded-xl border border-kumo-line bg-kumo-base space-y-1 shadow-xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] text-kumo-subtle font-medium">Bus 4 Transit Manifest</span>
-            <Badge variant="blue" className="text-[10px] py-0">Garki</Badge>
-          </div>
-          <p className="text-xl sm:text-2xl font-extrabold text-kumo-brand font-mono">
-            {busMembers.filter((m) => m.checkInStatus === "present").length} / {busMembers.length}
-          </p>
-          <span className="text-[10px] text-kumo-subtle">Transit Arrivals Reconciled</span>
-        </div>
-
-        <div className="p-3.5 rounded-xl border border-kumo-line bg-kumo-base space-y-1 shadow-xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] text-kumo-subtle font-medium">Welcome Gift Desk</span>
-            <Badge variant="purple" className="text-[10px] py-0">Parity</Badge>
-          </div>
-          <p className="text-xl sm:text-2xl font-extrabold text-kumo-default font-mono">
-            {giftEligibleMembers.length} Ready
-          </p>
-          <span className="text-[10px] text-kumo-subtle">Boxes Prepared in Lounge</span>
-        </div>
-
-        <div className="p-3.5 rounded-xl border border-kumo-line bg-kumo-base space-y-1 shadow-xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] text-kumo-subtle font-medium">Late Check-In Queue</span>
-            <Badge variant="orange" className="text-[10px] py-0">Active</Badge>
-          </div>
-          <p className="text-xl sm:text-2xl font-extrabold text-amber-400 font-mono">
-            {lateCount + 14}
-          </p>
-          <span className="text-[10px] text-amber-400 font-medium">Sermon Window Check-in</span>
-        </div>
-      </div>
-
-      {/* Notifications / Feedback */}
+      {/* Notifications / Alerts */}
       {qrScanSuccess && (
-        <div className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs flex items-center justify-between shadow-xs">
+        <div className="p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-2">
             <Icons.CheckCircle weight="fill" className="w-4 h-4 shrink-0" />
             <span>{qrScanSuccess}</span>
@@ -316,10 +200,10 @@ export function PcuDeskView() {
       )}
 
       {manifestBatchSynced && (
-        <div className="p-3.5 rounded-xl border border-kumo-brand/30 bg-kumo-brand/10 text-kumo-brand text-xs flex items-center justify-between shadow-xs">
+        <div className="p-3 rounded-xl border border-kumo-brand/30 bg-kumo-brand/10 text-kumo-brand text-xs flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-2">
             <Icons.Bus className="w-4 h-4 shrink-0" />
-            <span>Bus 4 Transit Manifest Reconciled: All 18 passengers synced to Sanctuary Attendance.</span>
+            <span>Bus 4 Transit Manifest Reconciled: 18 passengers synced to Sanctuary.</span>
           </div>
           <Button variant="ghost" size="xs" onClick={() => setManifestBatchSynced(false)}>
             Dismiss
@@ -339,43 +223,109 @@ export function PcuDeskView() {
           />
           <div className="p-3 rounded-xl bg-kumo-elevated border border-kumo-hairline flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 text-xs">
             <span className="text-kumo-subtle">
-              System verified: Attendance was already logged via <strong>{duplicateWarningMember.source}</strong> at {duplicateWarningMember.time}.
+              Already checked in via <strong>{duplicateWarningMember.source}</strong> at {duplicateWarningMember.time}.
             </span>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="xs"
-                onClick={() => {
-                  alert(`Printed Foyer Name Badge for ${duplicateWarningMember.name}. No duplicate record created.`);
-                  setDuplicateWarningMember(null);
-                }}
+                onClick={() => setDuplicateWarningMember(null)}
               >
-                Print Foyer Badge Only
+                Print Badge Only
               </Button>
               <Button
                 variant="ghost"
                 size="xs"
                 onClick={() => setDuplicateWarningMember(null)}
               >
-                Acknowledge & Close
+                Dismiss
               </Button>
             </div>
           </div>
         </div>
       )}
 
-      {/* 2-Column High-Throughput Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-start">
-        {/* LEFT COLUMN: Fast Influx & Reconciliation Stations (5 cols) */}
-        <div className="lg:col-span-5 space-y-4">
-          {/* Station 1: Incoming Bus Manifest Batch Reconciler */}
-          <LayerCard className="p-4 space-y-3 border border-kumo-line">
+      {/* ============================================================ */}
+      {/* TAB 1: DESK CHECK-IN QUEUE                                   */}
+      {/* ============================================================ */}
+      {activeScreen === "desk" && (
+        <div className="space-y-3">
+          {/* Search & Filter */}
+          <div className="space-y-2">
+            <Input
+              placeholder="Search attendee by name, phone, or stop..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label="Search attendee"
+            />
+
+            <div className="flex items-center gap-1.5 text-xs">
+              <button
+                type="button"
+                onClick={() => setActiveTab("all")}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg border font-semibold transition-all cursor-pointer whitespace-nowrap",
+                  activeTab === "all"
+                    ? "bg-kumo-elevated border-kumo-brand ring-1 ring-kumo-brand text-kumo-default"
+                    : "bg-kumo-base border-kumo-hairline text-kumo-subtle hover:text-kumo-default"
+                )}
+              >
+                All Attendees ({roster.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("late")}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg border font-semibold transition-all cursor-pointer whitespace-nowrap",
+                  activeTab === "late"
+                    ? "bg-kumo-elevated border-kumo-brand ring-1 ring-kumo-brand text-kumo-default"
+                    : "bg-kumo-base border-kumo-hairline text-kumo-subtle hover:text-kumo-default"
+                )}
+              >
+                Late Arrivals
+              </button>
+            </div>
+          </div>
+
+          {/* Attendee Roster List */}
+          <div className="space-y-2">
+            {filteredRoster.map((member) => (
+              <AttendanceRosterItem
+                key={member.id}
+                id={member.id}
+                name={member.name}
+                phone={member.phone}
+                source={member.source}
+                pickupStop={member.pickupStop}
+                status={member.checkInStatus}
+                checkInTime={member.checkInTime}
+                onMarkPresent={() => handlePcuMarkAttempt(member.id)}
+                onMarkLate={(id) => markAttendance(id, "late", "10:15 AM")}
+              />
+            ))}
+
+            {filteredRoster.length === 0 && (
+              <div className="p-8 text-center border border-dashed border-kumo-line rounded-xl space-y-1">
+                <Icons.UserFocus className="w-8 h-8 text-kumo-subtle mx-auto" />
+                <p className="text-xs text-kumo-subtle">No attendee records found for this filter.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* TAB 2: INCOMING BUS MANIFESTS                                */}
+      {/* ============================================================ */}
+      {activeScreen === "manifest" && (
+        <div className="space-y-3">
+          <div className="p-4 rounded-2xl border border-kumo-line bg-kumo-base space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Icons.Bus className="w-4 h-4 text-kumo-brand" />
-                <span className="text-xs font-bold text-kumo-default">Incoming Bus Manifest</span>
+                <span className="text-xs font-bold text-kumo-default">Incoming Bus Manifests</span>
               </div>
-              <Badge variant="blue">Garki</Badge>
+              <Badge variant="blue">Bus 4 • Garki</Badge>
             </div>
 
             <div className="p-3 rounded-xl bg-kumo-recessed border border-kumo-hairline space-y-2 text-xs">
@@ -384,16 +334,16 @@ export function PcuDeskView() {
                 <span className="font-semibold text-kumo-default">Bus 4 • Garki / Area 1</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-kumo-subtle">Captain:</span>
-                <span className="text-kumo-default">Bro. Stephen (Transit Marshal)</span>
+                <span className="text-kumo-subtle">Transit Captain:</span>
+                <span className="text-kumo-default">Bro. Stephen (Marshal)</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-kumo-subtle">Status:</span>
                 <span className="font-medium text-emerald-400">Arrived at Foyer (08:42 AM)</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-kumo-subtle">Boarded Passengers:</span>
-                <span className="font-bold text-kumo-default font-mono">18 Souls</span>
+                <span className="text-kumo-subtle">Boarded Souls:</span>
+                <span className="font-bold text-kumo-default font-mono">18 Passengers</span>
               </div>
             </div>
 
@@ -401,31 +351,24 @@ export function PcuDeskView() {
               variant="primary"
               size="sm"
               onClick={handleReconcileBusBatch}
-              className="w-full justify-center gap-1.5 text-xs"
+              className="w-full justify-center gap-1.5 text-xs font-bold py-2.5 cursor-pointer shadow-sm"
             >
               <Icons.CheckCircle className="w-4 h-4" />
               <span>Bulk-Reconcile Bus 4 to Sanctuary</span>
             </Button>
-          </LayerCard>
+          </div>
 
-          {/* Station 2: Saturday Evangelism Lead Direct Converter */}
-          <LayerCard className="p-4 space-y-3 border border-kumo-line">
+          {/* Saturday Outreach Roadshow Contacts */}
+          <div className="p-4 rounded-2xl border border-kumo-line bg-kumo-base space-y-2.5">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Icons.Users className="w-4 h-4 text-emerald-400" />
-                <span className="text-xs font-bold text-kumo-default">Saturday Roadshow Leads</span>
-              </div>
-              <Badge variant="purple">Outreach</Badge>
+              <span className="text-xs font-bold text-kumo-default">Saturday Roadshow Leads</span>
+              <Badge variant="purple" className="text-[10px]">Outreach</Badge>
             </div>
-            <p className="text-[11px] text-kumo-subtle">
-              Street outreach contacts. Click to check in:
-            </p>
-
             <div className="space-y-2">
               {coldLeads.slice(0, 3).map((lead) => (
                 <div
                   key={lead.id}
-                  className="p-2.5 rounded-xl border border-kumo-hairline bg-kumo-base flex items-center justify-between gap-2 text-xs"
+                  className="p-2.5 rounded-xl border border-kumo-hairline bg-kumo-elevated flex items-center justify-between gap-2 text-xs"
                 >
                   <div className="min-w-0">
                     <div className="font-semibold text-kumo-default truncate">{lead.name}</div>
@@ -449,170 +392,145 @@ export function PcuDeskView() {
                 </div>
               ))}
             </div>
-          </LayerCard>
-
-          {/* Quick Simulation Helper */}
-          <div className="p-3.5 rounded-xl border border-kumo-hairline bg-kumo-base text-xs space-y-2">
-            <span className="font-semibold text-kumo-default block">Foyer Staff Quick Actions</span>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                variant="outline"
-                size="xs"
-                onClick={() => setSearchQuery("Samuel Adebayo")}
-                className="justify-center text-xs"
-              >
-                Find &ldquo;Samuel Adebayo&rdquo;
-              </Button>
-              <Button
-                variant="outline"
-                size="xs"
-                onClick={() => {
-                  setSearchQuery("");
-                  setActiveTab("gifts");
-                }}
-                className="justify-center text-xs text-kumo-brand"
-              >
-                View Gift Desk Queue
-              </Button>
-            </div>
           </div>
         </div>
+      )}
 
-        {/* RIGHT COLUMN: Live Foyer Queue & Roster (7 cols) */}
-        <div className="lg:col-span-7 space-y-4">
-          <LayerCard className="p-3.5 sm:p-5 space-y-4">
-            {/* Triage Tabs & Search Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
-              <div className="flex items-center gap-1.5 text-xs overflow-x-auto no-scrollbar">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("all")}
-                  className={cn(
-                    "px-3 py-1.5 rounded-lg border font-semibold transition-all cursor-pointer whitespace-nowrap",
-                    activeTab === "all"
-                      ? "bg-kumo-elevated border-kumo-brand ring-1 ring-kumo-brand text-kumo-default"
-                      : "bg-kumo-base border-kumo-hairline text-kumo-subtle hover:text-kumo-default"
-                  )}
-                >
-                  All Foyer ({roster.length})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("reconcile")}
-                  className={cn(
-                    "px-3 py-1.5 rounded-lg border font-semibold transition-all cursor-pointer whitespace-nowrap",
-                    activeTab === "reconcile"
-                      ? "bg-kumo-elevated border-kumo-brand ring-1 ring-kumo-brand text-kumo-default"
-                      : "bg-kumo-base border-kumo-hairline text-kumo-subtle hover:text-kumo-default"
-                  )}
-                >
-                  Bus 4 Manifest ({busMembers.length})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("gifts")}
-                  className={cn(
-                    "px-3 py-1.5 rounded-lg border font-semibold transition-all cursor-pointer whitespace-nowrap",
-                    activeTab === "gifts"
-                      ? "bg-kumo-elevated border-kumo-brand ring-1 ring-kumo-brand text-kumo-default"
-                      : "bg-kumo-base border-kumo-hairline text-kumo-subtle hover:text-kumo-default"
-                  )}
-                >
-                  Welcome Gift Desk ({giftEligibleMembers.length})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("late")}
-                  className={cn(
-                    "px-3 py-1.5 rounded-lg border font-semibold transition-all cursor-pointer whitespace-nowrap",
-                    activeTab === "late"
-                      ? "bg-kumo-elevated border-kumo-brand ring-1 ring-kumo-brand text-kumo-default"
-                      : "bg-kumo-base border-kumo-hairline text-kumo-subtle hover:text-kumo-default"
-                  )}
-                >
-                  Late Queue
-                </button>
+      {/* ============================================================ */}
+      {/* TAB 3: DEDICATED INLINE WALK-IN INTAKE                       */}
+      {/* ============================================================ */}
+      {activeScreen === "walkin" && (
+        <div className="p-4 sm:p-5 rounded-2xl border border-kumo-line bg-kumo-base space-y-4">
+          <div>
+            <h3 className="font-bold text-sm sm:text-base text-kumo-default">Register Foyer Walk-In Guest</h3>
+            <p className="text-xs text-kumo-subtle">Fast intake for first-time visitors walking into Guzape Foyer.</p>
+          </div>
+
+          {walkInSuccessMsg && (
+            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center gap-2 animate-fade-in">
+              <Icons.CheckCircle className="w-4 h-4 shrink-0" />
+              <span>{walkInSuccessMsg}</span>
+            </div>
+          )}
+
+          <div className="space-y-3">
+            <Input
+              label="Full Name"
+              placeholder="e.g. Sister Grace Obi"
+              value={walkInName}
+              onChange={(e) => setWalkInName(e.target.value)}
+              aria-label="Full name of walk in guest"
+            />
+
+            <Input
+              label="Phone Number"
+              placeholder="+234 800 000 0000"
+              value={walkInPhone}
+              onChange={(e) => setWalkInPhone(e.target.value)}
+              aria-label="Phone number of walk in guest"
+            />
+
+            <div className="space-y-1.5">
+              <span className="text-xs font-semibold text-kumo-subtle block">Residential Zone</span>
+              <div className="grid grid-cols-2 gap-1.5">
+                {["Maitama Extension", "Garki Zone 3", "Wuse 2 Hub", "Guzape Hills"].map((z) => (
+                  <button
+                    key={z}
+                    type="button"
+                    onClick={() => setWalkInZone(z)}
+                    className={cn(
+                      "py-1.5 px-2.5 rounded-lg border text-left text-xs transition-all cursor-pointer",
+                      walkInZone === z
+                        ? "bg-kumo-elevated border-kumo-brand ring-1 ring-kumo-brand text-kumo-default font-semibold"
+                        : "bg-kumo-recessed border-kumo-hairline text-kumo-subtle"
+                    )}
+                  >
+                    {z}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Accessible Search Input */}
-            <Input
-              placeholder="Search attendee by name, phone, or stop..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              aria-label="Search by attendee name or phone number"
-            />
+            <Button
+              variant="primary"
+              size="base"
+              onClick={handleCreateWalkIn}
+              disabled={!walkInName.trim()}
+              className="w-full justify-center gap-2 font-bold text-xs py-2.5 mt-2 cursor-pointer shadow-md"
+            >
+              <Icons.UserPlus className="w-4 h-4" />
+              <span>Check In & Issue Physical Badge</span>
+            </Button>
+          </div>
+        </div>
+      )}
 
-            {/* Member Roster List */}
-            <div className="space-y-2 sm:space-y-2.5">
-              {filteredRoster.map((member) => (
-                <div key={member.id} className="space-y-1">
-                  <AttendanceRosterItem
-                    id={member.id}
-                    name={member.name}
-                    phone={member.phone}
-                    source={member.source}
-                    pickupStop={member.pickupStop}
-                    status={member.checkInStatus}
-                    checkInTime={member.checkInTime}
-                    onMarkPresent={() => handlePcuMarkAttempt(member.id)}
-                    onMarkLate={(id) => markAttendance(id, "late", "10:15 AM")}
-                  />
+      {/* ============================================================ */}
+      {/* TAB 4: WELCOME GIFT DESK & DISPATCH                          */}
+      {/* ============================================================ */}
+      {activeScreen === "gifts" && (
+        <div className="space-y-3">
+          <div className="p-4 rounded-2xl border border-kumo-line bg-kumo-base space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-sm text-kumo-default">Welcome Gift Lounge</h3>
+                <p className="text-[11px] text-kumo-subtle">VIP Unified Welcome Pack Parity Dispatch</p>
+              </div>
+              <Badge variant="purple" className="text-xs font-bold">{giftEligibleMembers.length} Ready</Badge>
+            </div>
 
-                  {/* Gift Desk Actions if in Gifts Tab or Eligible */}
-                  {(activeTab === "gifts" || member.giftStatus === "eligible") && (
-                    <div className="ml-4 p-2.5 rounded-xl bg-kumo-elevated border border-kumo-hairline flex items-center justify-between gap-2 text-xs">
-                      <div className="flex items-center gap-2">
-                        <Icons.Gift className="w-4 h-4 text-purple-400" />
-                        <span className="text-kumo-default">
-                          {member.giftStatus === "dispatched"
-                            ? `Welcome Pack Dispatched (${member.giftDispatchId || "Box #419"})`
-                            : "Eligible for Welcome Box Parity Pack"}
-                        </span>
-                      </div>
+            <div className="space-y-2">
+              {giftEligibleMembers.map((member) => (
+                <div
+                  key={member.id}
+                  className="p-3 rounded-xl border border-kumo-hairline bg-kumo-elevated flex items-center justify-between gap-3 text-xs"
+                >
+                  <div className="space-y-0.5 min-w-0">
+                    <span className="font-bold text-kumo-default truncate block">{member.name}</span>
+                    <span className="text-[11px] text-kumo-subtle block">{member.zone || "Maitama Zone"}</span>
+                  </div>
 
-                      {member.giftStatus !== "dispatched" && (
-                        <Button
-                          variant="primary"
-                          size="xs"
-                          onClick={() => setGiftModalMember({ id: member.id, name: member.name, zone: member.zone })}
-                          className="gap-1 text-xs"
-                        >
-                          <Icons.Package className="w-3.5 h-3.5" />
-                          <span>Dispatch Welcome Pack</span>
-                        </Button>
-                      )}
-                    </div>
-                  )}
+                  <div>
+                    {member.giftStatus === "dispatched" ? (
+                      <Badge variant="success" className="text-[10px] py-0.5">Dispatched ✓</Badge>
+                    ) : (
+                      <Button
+                        variant="primary"
+                        size="xs"
+                        onClick={() => setGiftModalMember({ id: member.id, name: member.name, zone: member.zone })}
+                        className="gap-1 text-xs font-bold"
+                      >
+                        <Icons.Package className="w-3.5 h-3.5" />
+                        <span>Dispatch Pack</span>
+                      </Button>
+                    )}
+                  </div>
                 </div>
               ))}
-
-              {filteredRoster.length === 0 && (
-                <div className="p-8 text-center border border-dashed border-kumo-line rounded-xl space-y-1">
-                  <Icons.UserFocus className="w-8 h-8 text-kumo-subtle mx-auto" />
-                  <p className="text-xs text-kumo-subtle">No attendee records found for this filter.</p>
-                </div>
-              )}
             </div>
+          </div>
 
-            {/* Transition prompt to Believers Class */}
-            <div className="pt-3 sm:pt-4 border-t border-kumo-hairline flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 text-xs">
-              <span className="text-kumo-subtle text-center sm:text-left">
-                Attendance reconciled. Seamlessly switch to Believers&apos; Class learning module.
-              </span>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setCurrentPersona("member-portal")}
-                className="gap-1.5 w-full sm:w-auto justify-center"
-              >
-                <span>Proceed to Believers&apos; Class</span>
-                <Icons.ArrowRight className="w-3.5 h-3.5" />
-              </Button>
+          {/* Transition Prompt to Believers Class */}
+          <div className="p-4 rounded-2xl border border-kumo-line bg-kumo-base space-y-2">
+            <div className="flex items-center gap-2">
+              <Icons.GraduationCap className="w-4 h-4 text-kumo-brand" />
+              <span className="font-bold text-xs text-kumo-default">Believers&apos; Class Academy</span>
             </div>
-          </LayerCard>
+            <p className="text-xs text-kumo-subtle">
+              First-timers are enrolled into the modular video discipleship class.
+            </p>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setCurrentPersona("member-portal")}
+              className="w-full justify-center gap-1.5 text-xs font-semibold"
+            >
+              <span>Switch to Believers&apos; Class</span>
+              <Icons.ArrowRight className="w-3.5 h-3.5" />
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Welcome Gift Box Unboxing / Dispatch Dialog */}
       <Dialog.Root open={Boolean(giftModalMember)} onOpenChange={(open) => !open && setGiftModalMember(null)}>
@@ -621,35 +539,23 @@ export function PcuDeskView() {
             <Icons.Gift className="w-5 h-5 text-purple-400" />
             <span>Dispatch Unified Welcome Pack</span>
           </Dialog.Title>
-          <Dialog.Description className="text-xs text-kumo-subtle">
-            Guarantees 100% gift parity for {giftModalMember?.name}. Resolves historic digital vs physical gift disparities.
-          </Dialog.Description>
 
-          <div className="p-3.5 rounded-xl bg-kumo-recessed border border-kumo-hairline space-y-2.5 text-xs">
+          <div className="p-3.5 rounded-xl bg-kumo-recessed border border-kumo-hairline space-y-2 text-xs">
             <span className="font-bold text-kumo-default block">Official Welcome Box Contents:</span>
             <ul className="space-y-1.5 text-kumo-subtle">
               <li className="flex items-center gap-2">
-                <Icons.CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Personalized Welcome Letter signed by Rev. Biodun & Pastor Modele Fatoyinbo</span>
+                <Icons.CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span>Personalized Welcome Letter signed by Pastor Biodun & Pastor Modele</span>
               </li>
               <li className="flex items-center gap-2">
-                <Icons.CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                <Icons.CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 <span>Consecrated Holy Communion Vial & Anointing Oil</span>
               </li>
               <li className="flex items-center gap-2">
-                <Icons.CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Premium COZA Hardcover Journal & Laser-Engraved Pen</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Icons.CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Foundations of Dominion Discipleship Guidebook</span>
+                <Icons.CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span>Premium COZA Hardcover Journal & Laser Pen</span>
               </li>
             </ul>
-          </div>
-
-          <div className="flex items-center justify-between text-xs pt-1">
-            <span className="text-kumo-subtle">Destination / Zone Hub:</span>
-            <span className="font-semibold text-kumo-default">{giftModalMember?.zone || activeMember.zone}</span>
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
@@ -666,11 +572,74 @@ export function PcuDeskView() {
               className="gap-1.5"
             >
               <Icons.Check className="w-4 h-4" />
-              <span>Confirm Physical Handover</span>
+              <span>Confirm Handover</span>
             </Button>
           </div>
         </Dialog>
       </Dialog.Root>
+
+      {/* ============================================================ */}
+      {/* NATIVE APP BOTTOM NAVBAR — PCU FOYER DESK                   */}
+      {/* ============================================================ */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-kumo-base/95 backdrop-blur-xl border-t border-kumo-line py-2 px-4 shadow-xl">
+        <div className="max-w-md mx-auto flex items-center justify-around">
+          <button
+            type="button"
+            onClick={() => setActiveScreen("desk")}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-all cursor-pointer py-1 px-3 rounded-xl active:scale-95",
+              activeScreen === "desk"
+                ? "text-kumo-brand font-bold"
+                : "text-kumo-subtle hover:text-kumo-default font-medium"
+            )}
+          >
+            <Icons.IdentificationCard className="w-5 h-5" weight={activeScreen === "desk" ? "fill" : "regular"} />
+            <span className="text-[10px]">Desk</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveScreen("manifest")}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-all cursor-pointer py-1 px-3 rounded-xl active:scale-95",
+              activeScreen === "manifest"
+                ? "text-kumo-brand font-bold"
+                : "text-kumo-subtle hover:text-kumo-default font-medium"
+            )}
+          >
+            <Icons.Bus className="w-5 h-5" weight={activeScreen === "manifest" ? "fill" : "regular"} />
+            <span className="text-[10px]">Manifests</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveScreen("walkin")}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-all cursor-pointer py-1 px-3 rounded-xl active:scale-95",
+              activeScreen === "walkin"
+                ? "text-kumo-brand font-bold"
+                : "text-kumo-subtle hover:text-kumo-default font-medium"
+            )}
+          >
+            <Icons.UserPlus className="w-5 h-5" weight={activeScreen === "walkin" ? "fill" : "regular"} />
+            <span className="text-[10px]">Walk-In</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveScreen("gifts")}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-all cursor-pointer py-1 px-3 rounded-xl active:scale-95",
+              activeScreen === "gifts"
+                ? "text-kumo-brand font-bold"
+                : "text-kumo-subtle hover:text-kumo-default font-medium"
+            )}
+          >
+            <Icons.Gift className="w-5 h-5" weight={activeScreen === "gifts" ? "fill" : "regular"} />
+            <span className="text-[10px]">Gifts</span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 }

@@ -2,15 +2,18 @@
 
 import React, { useState } from "react";
 import {
-  LayerCard,
   Badge,
   Select,
+  cn,
+  Icons,
 } from "@/design-system";
 import { useDemo } from "@/context/demo-context";
 import { AssimilationFunnelCard } from "@/components/coza";
 
 export function ExecutiveDashboardView() {
   const { funnelStats, activeMember } = useDemo();
+  // In-App Screen Tab: "funnel" | "campuses" | "health"
+  const [activeTab, setActiveTab] = useState<"funnel" | "campuses" | "health">("funnel");
   const [selectedBranch, setSelectedBranch] = useState("all");
 
   const funnelStages = [
@@ -47,175 +50,254 @@ export function ExecutiveDashboardView() {
   ];
 
   return (
-    <div className="space-y-5">
+    <div className="max-w-xl mx-auto pb-28 space-y-4">
       {/* Executive Clean Header */}
-      <div className="p-3.5 sm:p-4 rounded-xl border border-kumo-line bg-kumo-elevated flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
-        <div>
-          <div className="flex items-center gap-1.5">
-            <h2 className="font-extrabold text-sm sm:text-base text-kumo-default">Executive Funnel</h2>
-            <Badge variant="purple" className="text-[10px] py-0 px-1.5">Global</Badge>
+      <div className="p-3.5 sm:p-4 rounded-2xl border border-kumo-line bg-kumo-base shadow-xs space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-kumo-brand/10 border border-kumo-brand/30 flex items-center justify-center shrink-0">
+              <Icons.ChartBar className="w-4 h-4 text-kumo-brand" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="font-extrabold text-sm sm:text-base text-kumo-default truncate">Senior Pastor Executive</span>
+                <Badge variant="purple" className="text-[10px] py-0 px-1.5 shrink-0">Global</Badge>
+              </div>
+              <span className="text-[11px] text-kumo-subtle truncate block">
+                COZA Assimilation & Evangelism Analytics
+              </span>
+            </div>
           </div>
-          <span className="text-[11px] text-kumo-subtle block">
-            Assimilation & Evangelism Analytics Across All Campuses
-          </span>
-        </div>
 
-        <div className="w-full sm:w-56 shrink-0 pt-1 sm:pt-0 border-t sm:border-t-0 border-kumo-hairline">
-          <Select
-            label="Filter Campus"
-            value={selectedBranch}
-            onValueChange={(val) => setSelectedBranch(val ?? "all")}
-          >
-            <Select.Option value="all">All COZA Global Campuses</Select.Option>
-            <Select.Option value="guzape">The Guzape Campus</Select.Option>
-            <Select.Option value="north">COZA North Church</Select.Option>
-            <Select.Option value="maraba">COZA Maraba Branch</Select.Option>
-            <Select.Option value="lugbe">COZA Lugbe Zone</Select.Option>
-          </Select>
+          <div className="w-36 shrink-0">
+            <Select
+              label="Campus"
+              value={selectedBranch}
+              onValueChange={(val) => setSelectedBranch(val ?? "all")}
+            >
+              <Select.Option value="all">All Campuses</Select.Option>
+              <Select.Option value="guzape">Guzape Campus</Select.Option>
+              <Select.Option value="north">North Church</Select.Option>
+              <Select.Option value="maraba">Maraba Branch</Select.Option>
+              <Select.Option value="lugbe">Lugbe Zone</Select.Option>
+            </Select>
+          </div>
         </div>
       </div>
 
-      {/* KPI Stat Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
-        <div className="p-3 sm:p-4 rounded-xl border border-kumo-line bg-kumo-base space-y-1">
-          <span className="text-[11px] sm:text-xs text-kumo-subtle block">New Guests (Month)</span>
-          <p className="text-xl sm:text-2xl font-extrabold text-kumo-default font-mono">
-            {funnelStats.firstTimers.toLocaleString()}
-          </p>
-          <span className="text-[10px] sm:text-[11px] text-emerald-400 font-medium block">↑ 18.4% vs last mo.</span>
-        </div>
+      {/* ============================================================ */}
+      {/* TAB 1: FUNNEL & GLOBAL KPIS                                  */}
+      {/* ============================================================ */}
+      {activeTab === "funnel" && (
+        <div className="space-y-3">
+          {/* KPI Stat Cards */}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="p-3 rounded-xl border border-kumo-line bg-kumo-base space-y-0.5">
+              <span className="text-[11px] text-kumo-subtle block font-medium">New Guests (Month)</span>
+              <p className="text-xl font-extrabold text-kumo-default font-mono">
+                {funnelStats.firstTimers.toLocaleString()}
+              </p>
+              <span className="text-[10px] text-emerald-400 font-medium">↑ 18.4% vs last mo.</span>
+            </div>
 
-        <div className="p-3 sm:p-4 rounded-xl border border-kumo-line bg-kumo-base space-y-1">
-          <span className="text-[11px] sm:text-xs text-kumo-subtle block">48h SLA Compliance</span>
-          <p className="text-xl sm:text-2xl font-extrabold text-emerald-400 font-mono">92.4%</p>
-          <span className="text-[10px] sm:text-[11px] text-kumo-subtle block truncate">Target: ≥ 90%</span>
-        </div>
+            <div className="p-3 rounded-xl border border-kumo-line bg-kumo-base space-y-0.5">
+              <span className="text-[11px] text-kumo-subtle block font-medium">48h SLA Compliance</span>
+              <p className="text-xl font-extrabold text-emerald-400 font-mono">92.4%</p>
+              <span className="text-[10px] text-kumo-subtle">Target: ≥ 90%</span>
+            </div>
 
-        <div className="p-3 sm:p-4 rounded-xl border border-kumo-line bg-kumo-base space-y-1">
-          <span className="text-[11px] sm:text-xs text-kumo-subtle block">Gift Complaints</span>
-          <p className="text-xl sm:text-2xl font-extrabold text-kumo-default font-mono">0</p>
-          <span className="text-[10px] sm:text-[11px] text-emerald-400 font-medium block truncate">100% Gift Parity</span>
-        </div>
+            <div className="p-3 rounded-xl border border-kumo-line bg-kumo-base space-y-0.5">
+              <span className="text-[11px] text-kumo-subtle block font-medium">Gift Parity</span>
+              <p className="text-xl font-extrabold text-kumo-default font-mono">100%</p>
+              <span className="text-[10px] text-emerald-400 font-medium">0 Discrepancy</span>
+            </div>
 
-        <div className="p-3 sm:p-4 rounded-xl border border-kumo-line bg-kumo-base space-y-1">
-          <span className="text-[11px] sm:text-xs text-kumo-subtle block">Cold Leads Pool</span>
-          <p className="text-xl sm:text-2xl font-extrabold text-kumo-default font-mono">38,420</p>
-          <span className="text-[10px] sm:text-[11px] text-kumo-subtle block truncate">10.8% arrival rate</span>
-        </div>
-      </div>
-
-      {/* Primary Assimilation Funnel */}
-      <AssimilationFunnelCard
-        branchName={
-          selectedBranch === "all"
-            ? "COZA Global — Consolidated Network (Guzape, North, Maraba, Lugbe)"
-            : selectedBranch.toUpperCase()
-        }
-        stages={funnelStages}
-      />
-
-      {/* Branch Strategy & Evangelism Activity Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Branch Comparator */}
-        <LayerCard className="p-5 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-kumo-hairline">
-            <h3 className="font-bold text-sm text-kumo-default">
-              Branch-by-Branch Assimilation Health
-            </h3>
-            <Badge variant="outline">Weekly Comparison</Badge>
+            <div className="p-3 rounded-xl border border-kumo-line bg-kumo-base space-y-0.5">
+              <span className="text-[11px] text-kumo-subtle block font-medium">Community Plugged</span>
+              <p className="text-xl font-extrabold text-kumo-default font-mono">
+                {funnelStats.communityAssimilated.toLocaleString()}
+              </p>
+              <span className="text-[10px] text-kumo-brand font-medium">In Cells & Workforce</span>
+            </div>
           </div>
 
-          <div className="space-y-3 text-xs">
-            {[
-              {
-                branch: "The Guzape Campus",
-                leads: "14,200 leads",
-                firstTimers: 640,
-                sla: "95% (2.1h avg)",
-                badge: "success" as const,
-              },
-              {
-                branch: "COZA North Church",
-                leads: "9,800 leads",
-                firstTimers: 380,
-                sla: "91% (4.8h avg)",
-                badge: "success" as const,
-              },
-              {
-                branch: "COZA Maraba Branch",
-                leads: "11,400 leads",
-                firstTimers: 290,
-                sla: "84% (SLA alert)",
-                badge: "warning" as const,
-              },
-              {
-                branch: "COZA Lugbe Zone",
-                leads: "3,020 leads",
-                firstTimers: 110,
-                sla: "89% (5.2h avg)",
-                badge: "purple" as const,
-              },
-            ].map((b) => (
-              <div
-                key={b.branch}
-                className="p-3 rounded-lg border border-kumo-hairline bg-kumo-recessed flex items-center justify-between"
-              >
+          {/* Primary Assimilation Funnel */}
+          <AssimilationFunnelCard
+            branchName={
+              selectedBranch === "all"
+                ? "COZA Global — Consolidated Network"
+                : selectedBranch.toUpperCase()
+            }
+            stages={funnelStages}
+          />
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* TAB 2: CAMPUS-BY-CAMPUS COMPARISON                           */}
+      {/* ============================================================ */}
+      {activeTab === "campuses" && (
+        <div className="space-y-3">
+          <div className="p-4 rounded-2xl border border-kumo-line bg-kumo-base space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-sm text-kumo-default">Branch Assimilation Health</h3>
+                <p className="text-[11px] text-kumo-subtle">Comparative performance across global locations</p>
+              </div>
+              <Badge variant="purple" className="text-xs font-bold">5 Campuses</Badge>
+            </div>
+
+            <div className="space-y-2">
+              {[
+                {
+                  branch: "The Guzape Campus (Global Headquarters)",
+                  leads: "14,200 leads",
+                  firstTimers: 640,
+                  sla: "95% (2.1h avg)",
+                  badge: "success" as const,
+                },
+                {
+                  branch: "COZA North Church",
+                  leads: "9,800 leads",
+                  firstTimers: 380,
+                  sla: "91% (4.8h avg)",
+                  badge: "success" as const,
+                },
+                {
+                  branch: "COZA Maraba Branch",
+                  leads: "11,400 leads",
+                  firstTimers: 290,
+                  sla: "84% (Attention needed)",
+                  badge: "warning" as const,
+                },
+                {
+                  branch: "COZA Lugbe Zone",
+                  leads: "3,020 leads",
+                  firstTimers: 110,
+                  sla: "89% (5.2h avg)",
+                  badge: "purple" as const,
+                },
+                {
+                  branch: "COZA London Church",
+                  leads: "2,450 leads",
+                  firstTimers: 95,
+                  sla: "98% (1.4h avg)",
+                  badge: "success" as const,
+                },
+              ].map((b) => (
+                <div
+                  key={b.branch}
+                  className="p-3 rounded-xl border border-kumo-hairline bg-kumo-elevated flex items-center justify-between gap-2 text-xs"
+                >
+                  <div className="min-w-0">
+                    <span className="font-bold text-kumo-default truncate block">{b.branch}</span>
+                    <span className="text-[11px] text-kumo-subtle block">
+                      {b.firstTimers} attendees • {b.leads}
+                    </span>
+                  </div>
+                  <div className="shrink-0">
+                    <Badge variant={b.badge}>{b.sla}</Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* TAB 3: RETENTION & EVANGELISM HEALTH                         */}
+      {/* ============================================================ */}
+      {activeTab === "health" && (
+        <div className="space-y-3">
+          <div className="p-4 rounded-2xl border border-kumo-line bg-kumo-base space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-sm text-kumo-default">Evangelism Nurture & Retention</h3>
+                <p className="text-[11px] text-kumo-subtle">Cold contacts automatic reactivation pipeline</p>
+              </div>
+              <Badge variant="purple" className="text-xs font-bold">38,420 Pool</Badge>
+            </div>
+
+            <div className="space-y-2 text-xs">
+              <div className="p-3 rounded-xl border border-kumo-hairline bg-kumo-elevated flex items-center justify-between">
                 <div>
-                  <span className="font-semibold text-kumo-default">{b.branch}</span>
-                  <p className="text-[11px] text-kumo-subtle">
-                    {b.firstTimers} attendees • {b.leads}
-                  </p>
+                  <span className="font-bold text-kumo-default block">Saturday Field Roadshows</span>
+                  <span className="text-[11px] text-kumo-subtle">184 workers active across 14 zones</span>
                 </div>
-                <div className="text-right">
-                  <Badge variant={b.badge}>{b.sla}</Badge>
+                <Badge variant="outline">+1,240 weekly</Badge>
+              </div>
+
+              <div className="p-3 rounded-xl border border-kumo-hairline bg-kumo-elevated flex items-center justify-between">
+                <div>
+                  <span className="font-bold text-kumo-default block">Automatic First-Visit Sync</span>
+                  <span className="text-[11px] text-kumo-subtle">Auto-links outreach phone to church check-in</span>
                 </div>
+                <Badge variant="success">Active</Badge>
               </div>
-            ))}
-          </div>
-        </LayerCard>
 
-        {/* Cold Lead to First-Timer Nurture Pipeline */}
-        <LayerCard className="p-5 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-kumo-hairline">
-            <h3 className="font-bold text-sm text-kumo-default">
-              Cold Leads Pipeline & Outreach Conversion
-            </h3>
-            <Badge variant="purple">38,420 Cold Contacts</Badge>
-          </div>
-
-          <p className="text-xs text-kumo-subtle leading-relaxed">
-            Addresses the transcript finding where 20,000–50,000 evangelism contacts sat idle. Contacts are nurtured via SMS/custom atmosphere ringtones and automatically promoted to full member status upon arrival.
-          </p>
-
-          <div className="space-y-2 text-xs">
-            <div className="p-3 rounded-lg border border-kumo-hairline bg-kumo-recessed flex items-center justify-between">
-              <div>
-                <span className="font-semibold text-kumo-default">Saturday Roadshows & Outreach</span>
-                <p className="text-[11px] text-kumo-subtle">184 workers deployed across 14 zones</p>
+              <div className="p-3 rounded-xl border border-kumo-hairline bg-kumo-elevated flex items-center justify-between">
+                <div>
+                  <span className="font-bold text-kumo-default block">Featured Assimilation Journey</span>
+                  <span className="text-[11px] text-kumo-subtle">
+                    {activeMember.name} (Roadshow → Bus 4 → Guzape Member)
+                  </span>
+                </div>
+                <Badge variant="purple">Fully Assimilated</Badge>
               </div>
-              <Badge variant="outline">+1,240 contacts</Badge>
-            </div>
-
-            <div className="p-3 rounded-lg border border-kumo-hairline bg-kumo-recessed flex items-center justify-between">
-              <div>
-                <span className="font-semibold text-kumo-default">Automatic Promotion on First Visit</span>
-                <p className="text-[11px] text-kumo-subtle">Auto-links evangelism lead phone to member profile</p>
-              </div>
-              <Badge variant="success">Auto-Synced</Badge>
-            </div>
-
-            <div className="p-3 rounded-lg border border-kumo-hairline bg-kumo-recessed flex items-center justify-between">
-              <div>
-                <span className="font-semibold text-kumo-default">Latest Promoted Lead</span>
-                <p className="text-[11px] text-kumo-subtle">
-                  {activeMember.name} (Garki Roadshow → Bus 4 → Guzape Member)
-                </p>
-              </div>
-              <Badge variant="purple">Fully Assimilated</Badge>
             </div>
           </div>
-        </LayerCard>
-      </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* NATIVE APP BOTTOM NAVBAR — SENIOR PASTOR EXECUTIVE          */}
+      {/* ============================================================ */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-kumo-base/95 backdrop-blur-xl border-t border-kumo-line py-2 px-4 shadow-xl">
+        <div className="max-w-md mx-auto flex items-center justify-around">
+          <button
+            type="button"
+            onClick={() => setActiveTab("funnel")}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-all cursor-pointer py-1 px-3 rounded-xl active:scale-95",
+              activeTab === "funnel"
+                ? "text-kumo-brand font-bold"
+                : "text-kumo-subtle hover:text-kumo-default font-medium"
+            )}
+          >
+            <Icons.ChartBar className="w-5 h-5" weight={activeTab === "funnel" ? "fill" : "regular"} />
+            <span className="text-[10px]">Funnel</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("campuses")}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-all cursor-pointer py-1 px-3 rounded-xl active:scale-95",
+              activeTab === "campuses"
+                ? "text-kumo-brand font-bold"
+                : "text-kumo-subtle hover:text-kumo-default font-medium"
+            )}
+          >
+            <Icons.Buildings className="w-5 h-5" weight={activeTab === "campuses" ? "fill" : "regular"} />
+            <span className="text-[10px]">Campuses</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("health")}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-all cursor-pointer py-1 px-3 rounded-xl active:scale-95",
+              activeTab === "health"
+                ? "text-kumo-brand font-bold"
+                : "text-kumo-subtle hover:text-kumo-default font-medium"
+            )}
+          >
+            <Icons.Heartbeat className="w-5 h-5" weight={activeTab === "health" ? "fill" : "regular"} />
+            <span className="text-[10px]">Retention</span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 }
