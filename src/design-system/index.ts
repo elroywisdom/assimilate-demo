@@ -38,3 +38,6 @@ export {
   Sparkle as SparkleIcon,
   ChartBar as ChartBarIcon,
 } from "@phosphor-icons/react";
+
+// 3. Official COZA Brand Assets
+export * from "./coza-logo";

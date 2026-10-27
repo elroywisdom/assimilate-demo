@@ -5,6 +5,7 @@ import {
   Badge,
   cn,
   Icons,
+  CozaLogo,
 } from "@/design-system";
 import { PersonaRole } from "@/context/demo-context";
 
@@ -65,9 +66,14 @@ export function RoleSelectionGateway({
     <div className={cn("space-y-3 max-w-md mx-auto", isModal ? "p-0" : "p-4")}>
       {/* Minimal Header */}
       <div className="flex items-center justify-between pb-1 border-b border-kumo-hairline">
-        <div>
-          <h3 className="text-sm font-bold text-kumo-default">Switch Role</h3>
-          <p className="text-[11px] text-kumo-subtle">Select perspective to explore</p>
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-kumo-elevated border border-kumo-line flex items-center justify-center p-1 shrink-0">
+            <CozaLogo size={18} className="text-kumo-brand" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-kumo-default">Switch Role</h3>
+            <p className="text-[11px] text-kumo-subtle">Select perspective to explore</p>
+          </div>
         </div>
         {onClose && (
           <button

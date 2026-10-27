@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Badge, Button, LayerCard, cn, Icons } from "@/design-system";
+import { Badge, Button, LayerCard, cn, Icons, CozaLogo } from "@/design-system";
 
 export interface DigitalBaptismCertificateCardProps {
   memberName: string;
@@ -45,7 +45,8 @@ export function DigitalBaptismCertificateCard({
       <LayerCard.Primary>
         <div className="space-y-4">
           {/* Certificate Header Banner */}
-          <div className="p-4 rounded-xl border border-kumo-line bg-kumo-elevated space-y-2 text-center">
+          <div className="p-4 rounded-xl border border-kumo-line bg-kumo-elevated space-y-2 text-center flex flex-col items-center">
+            <CozaLogo size={36} className="text-kumo-brand mb-1" />
             <span className="text-[10px] tracking-widest uppercase font-semibold text-kumo-subtle">
               Commonwealth of Zion Assembly
             </span>
