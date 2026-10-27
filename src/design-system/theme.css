@@ -1,0 +1,40 @@
+/* src/design-system/theme.css */
+/*
+ * Coza Buddy Brand Theme Overrides
+ * Derived from DESIGN-SYSTEM.md & CTS App Figma tokens
+ */
+
+@theme {
+  /* Brand Primitive Colors */
+  --coza-brand-deep: #170d25;
+  --coza-brand-surface-dark: #09090b;
+  --coza-brand-primary: #711cff;
+  --coza-brand-secondary: #6b079d;
+  --coza-brand-accent: #ff01f8;
+  --coza-button-primary: #8311b3;
+  --coza-brand-border: #2a1f3a;
+  --coza-accent-amber: #f0ad4d;
+
+  /* Surfaces */
+  --color-kumo-canvas: light-dark(#f6f7fd, var(--coza-brand-deep));
+  --color-kumo-base: light-dark(#ffffff, var(--coza-brand-surface-dark));
+  --color-kumo-elevated: light-dark(#ffffff, #120a1f);
+  --color-kumo-recessed: light-dark(#f1f2f8, #0d0617);
+  --color-kumo-tint: light-dark(#f4f0fc, #1f1233);
+
+  /* Brand and Accent */
+  --color-kumo-brand: light-dark(var(--coza-brand-primary), var(--coza-brand-primary));
+  --color-kumo-brand-hover: light-dark(var(--coza-brand-secondary), var(--coza-brand-secondary));
+  --text-color-kumo-brand: light-dark(var(--coza-brand-primary), #a872ff);
+
+  /* Borders */
+  --color-kumo-line: light-dark(rgba(0, 0, 0, 0.08), var(--coza-brand-border));
+  --color-kumo-hairline: light-dark(rgba(0, 0, 0, 0.05), #231633);
+
+  /* Status Tokens */
+  --color-kumo-danger: light-dark(#e11d48, var(--coza-brand-accent));
+  --text-color-kumo-danger: light-dark(#be123c, #ff69fb);
+  --color-kumo-warning: light-dark(var(--coza-accent-amber), var(--coza-accent-amber));
+  --text-color-kumo-warning: light-dark(#b45309, #fcd34d);
+  --color-kumo-success: light-dark(#10b981, #10b981);
+}
