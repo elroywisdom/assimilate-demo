@@ -170,18 +170,21 @@ export function ZonalCoordinatorView() {
 
   return (
     <div className="space-y-4 sm:space-y-5 max-w-6xl mx-auto">
-      {/* Top Narrative Context Card */}
-      <div className="p-3.5 sm:p-4 rounded-2xl border border-kumo-line bg-kumo-elevated flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 shadow-sm">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="purple" className="text-xs">Act 3: Zonal Community & Pastoral Care</Badge>
-            <span className="font-semibold text-xs sm:text-sm text-kumo-default">
-              Deaconess Sarah • {activeZone} Coordinator
+      {/* Clean Zonal Header */}
+      <div className="p-3.5 sm:p-4 rounded-2xl border border-kumo-line bg-kumo-elevated flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-kumo-brand/10 border border-kumo-brand/30 flex items-center justify-center shrink-0">
+            <Icons.UsersThree className="w-4 h-4 text-kumo-brand" />
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <span className="font-extrabold text-sm sm:text-base text-kumo-default">Zonal Pastoral Care</span>
+              <Badge variant="purple" className="text-[10px] py-0 px-1.5">{activeZone}</Badge>
+            </div>
+            <span className="text-[11px] text-kumo-subtle block">
+              Coordinator: Deaconess Sarah • 48h Care SLA
             </span>
           </div>
-          <p className="text-xs text-kumo-subtle leading-relaxed">
-            Guarantees pastoral accountability via automated 48-hour SLA queues, pre-scripted WhatsApp pastoral welcomes, Saturday community hangouts, and Stage 5 COZA Body placement.
-          </p>
         </div>
 
         <Dialog.Root open={reportModalOpen} onOpenChange={setReportModalOpen}>

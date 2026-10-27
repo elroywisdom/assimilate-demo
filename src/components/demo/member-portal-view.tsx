@@ -118,22 +118,20 @@ export function MemberPortalView() {
 
   return (
     <div className="space-y-6">
-      {/* Top Narrative Context Banner */}
-      <div className="p-3.5 sm:p-4 rounded-xl border border-kumo-line bg-kumo-elevated flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="purple" className="text-xs">Act 2: Member Discipleship Journey</Badge>
-            <span className="font-semibold text-xs sm:text-sm text-kumo-default">
-              Logged in as: {activeMember.name}
-            </span>
+      {/* Clean Member Portal Header */}
+      <div className="p-3.5 sm:p-4 rounded-xl border border-kumo-line bg-kumo-elevated flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
+        <div>
+          <div className="flex items-center gap-1.5">
+            <h2 className="font-extrabold text-sm sm:text-base text-kumo-default">Believers&apos; Class Portal</h2>
+            <Badge variant="purple" className="text-[10px] py-0 px-1.5">Cohort 26</Badge>
           </div>
-          <p className="text-xs text-kumo-subtle leading-relaxed">
-            Coursera & HubSpot-grade mobile learning experience matching Figma screens SCR-MEM-04 (Home) & SCR-MEM-05 (Video Player).
-          </p>
+          <span className="text-[11px] text-kumo-subtle block">
+            Student: {activeMember.name} • 10-Day Assimilation Path
+          </span>
         </div>
 
         {/* View Switcher Controls */}
-        <div className="flex items-center gap-1.5 p-1 rounded-lg bg-kumo-recessed border border-kumo-hairline text-xs overflow-x-auto no-scrollbar shrink-0">
+        <div className="flex items-center gap-1 p-1 rounded-lg bg-kumo-recessed border border-kumo-hairline text-xs overflow-x-auto no-scrollbar shrink-0">
           <button
             type="button"
             onClick={() => {
@@ -141,13 +139,13 @@ export function MemberPortalView() {
               setActiveBottomNav("home");
             }}
             className={cn(
-              "px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer whitespace-nowrap",
+              "px-2.5 py-1.5 rounded-md font-semibold transition-all cursor-pointer whitespace-nowrap text-xs",
               mobileScreen === "home"
                 ? "bg-kumo-base text-kumo-default shadow-xs"
                 : "text-kumo-subtle hover:text-kumo-default"
             )}
           >
-            SCR-MEM-04 (Home)
+            Dashboard
           </button>
           <button
             type="button"
@@ -156,13 +154,13 @@ export function MemberPortalView() {
               setActiveBottomNav("learn");
             }}
             className={cn(
-              "px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer whitespace-nowrap",
+              "px-2.5 py-1.5 rounded-md font-semibold transition-all cursor-pointer whitespace-nowrap text-xs",
               mobileScreen === "player"
                 ? "bg-kumo-base text-kumo-default shadow-xs"
                 : "text-kumo-subtle hover:text-kumo-default"
             )}
           >
-            SCR-MEM-05 (Player)
+            Video Lesson
           </button>
           <button
             type="button"
@@ -171,25 +169,25 @@ export function MemberPortalView() {
               setActiveBottomNav("baptism");
             }}
             className={cn(
-              "px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer whitespace-nowrap",
+              "px-2.5 py-1.5 rounded-md font-semibold transition-all cursor-pointer whitespace-nowrap text-xs",
               mobileScreen === "baptism"
                 ? "bg-kumo-base text-kumo-default shadow-xs"
                 : "text-kumo-subtle hover:text-kumo-default"
             )}
           >
-            Baptism Booking
+            Baptism
           </button>
           <button
             type="button"
             onClick={() => setMobileScreen("gift")}
             className={cn(
-              "px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer whitespace-nowrap",
+              "px-2.5 py-1.5 rounded-md font-semibold transition-all cursor-pointer whitespace-nowrap text-xs",
               mobileScreen === "gift"
                 ? "bg-kumo-base text-kumo-default shadow-xs"
                 : "text-kumo-subtle hover:text-kumo-default"
             )}
           >
-            Gift Box Parity
+            Welcome Gift
           </button>
           <button
             type="button"
@@ -198,13 +196,13 @@ export function MemberPortalView() {
               setActiveBottomNav("placement");
             }}
             className={cn(
-              "px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer whitespace-nowrap",
+              "px-2.5 py-1.5 rounded-md font-semibold transition-all cursor-pointer whitespace-nowrap text-xs",
               mobileScreen === "placement"
                 ? "bg-kumo-base text-kumo-default shadow-xs"
                 : "text-kumo-subtle hover:text-kumo-default"
             )}
           >
-            Stage 5: Ministry
+            Placement
           </button>
         </div>
       </div>

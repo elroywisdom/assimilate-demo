@@ -154,30 +154,33 @@ export function PcuDeskView() {
 
   return (
     <div className="space-y-4 sm:space-y-5 max-w-6xl mx-auto">
-      {/* Top Narrative Context Header */}
-      <div className="p-3.5 sm:p-4 rounded-2xl border border-kumo-line bg-kumo-elevated flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 shadow-sm">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="purple" className="text-xs">Act 1B: PCU Foyer Command Desk</Badge>
-            <span className="font-semibold text-xs sm:text-sm text-kumo-default">
-              Desk 2 • Guzape Campus Main Entrance
+      {/* Clean Foyer Header */}
+      <div className="p-3.5 sm:p-4 rounded-2xl border border-kumo-line bg-kumo-elevated flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-kumo-brand/10 border border-kumo-brand/30 flex items-center justify-center shrink-0">
+            <Icons.IdentificationCard className="w-4 h-4 text-kumo-brand" />
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <span className="font-extrabold text-sm sm:text-base text-kumo-default">PCU Foyer Desk</span>
+              <Badge variant="purple" className="text-[10px] py-0 px-1.5">Desk 02</Badge>
+            </div>
+            <span className="text-[11px] text-kumo-subtle block">
+              Guzape Campus Main Entrance
             </span>
           </div>
-          <p className="text-xs text-kumo-subtle leading-relaxed">
-            High-speed foyer reconciliation: batch-verifies incoming transit manifests, prevents duplicate check-ins, promotes Saturday roadshow leads, and dispatches welcome packs.
-          </p>
         </div>
 
         <div className="flex items-center gap-2 self-stretch sm:self-center shrink-0">
           <Button
             variant="outline"
-            size="xs"
+            size="sm"
             onClick={handleSimulateQrScan}
-            className="text-xs flex-1 sm:flex-none justify-center gap-1.5"
+            className="text-xs flex-1 sm:flex-none justify-center gap-1.5 py-2"
             aria-label="Simulate QR Scan"
           >
             <Icons.QrCode className="w-3.5 h-3.5 text-kumo-brand" />
-            <span>Simulate QR Pass Scan</span>
+            <span>Scan Pass</span>
           </Button>
 
           <Dialog.Root open={walkInModalOpen} onOpenChange={setWalkInModalOpen}>
@@ -187,10 +190,10 @@ export function PcuDeskView() {
                   {...p}
                   variant="primary"
                   size="sm"
-                  className="gap-1.5 flex-1 sm:flex-none justify-center text-xs"
+                  className="gap-1.5 flex-1 sm:flex-none justify-center text-xs font-semibold py-2"
                 >
                   <Icons.UserPlus className="w-3.5 h-3.5" />
-                  <span>+ Walk-In Guest</span>
+                  <span>+ Walk-In</span>
                 </Button>
               )}
             />
@@ -372,7 +375,7 @@ export function PcuDeskView() {
                 <Icons.Bus className="w-4 h-4 text-kumo-brand" />
                 <span className="text-xs font-bold text-kumo-default">Incoming Bus Manifest</span>
               </div>
-              <Badge variant="blue">PRD BUS-04</Badge>
+              <Badge variant="blue">Garki</Badge>
             </div>
 
             <div className="p-3 rounded-xl bg-kumo-recessed border border-kumo-hairline space-y-2 text-xs">
@@ -405,17 +408,17 @@ export function PcuDeskView() {
             </Button>
           </LayerCard>
 
-          {/* Station 2: Saturday Evangelism Lead Direct Converter (PRD EVA-02) */}
+          {/* Station 2: Saturday Evangelism Lead Direct Converter */}
           <LayerCard className="p-4 space-y-3 border border-kumo-line">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Icons.Users className="w-4 h-4 text-emerald-400" />
                 <span className="text-xs font-bold text-kumo-default">Saturday Roadshow Leads</span>
               </div>
-              <Badge variant="purple">PRD EVA-02</Badge>
+              <Badge variant="purple">Outreach</Badge>
             </div>
             <p className="text-[11px] text-kumo-subtle">
-              Street outreach contacts collected yesterday. Click to promote immediately upon foyer arrival:
+              Street outreach contacts. Click to check in:
             </p>
 
             <div className="space-y-2">

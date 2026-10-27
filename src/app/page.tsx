@@ -123,27 +123,16 @@ function DemoLayoutInner() {
               </div>
             </div>
 
-            {/* Quick Action Controls: App/Demo View Mode, Theme */}
+            {/* Quick Action Controls: Theme & Role Gateway */}
             <div className="flex items-center gap-1.5 shrink-0">
-              {/* View Mode Switcher (App vs Presentation) */}
               <Button
-                variant="ghost"
+                variant="secondary"
                 size="xs"
-                onClick={() => setViewMode(viewMode === "app" ? "presentation" : "app")}
-                className="text-xs text-kumo-subtle"
-                aria-label="Toggle App vs Presentation View"
+                onClick={() => setRoleModalOpen(true)}
+                className="gap-1 font-semibold text-xs md:hidden"
               >
-                {viewMode === "app" ? (
-                  <span className="text-[11px] font-semibold text-kumo-brand flex items-center gap-1">
-                    <Icons.Presentation className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Show Demo Tools</span>
-                  </span>
-                ) : (
-                  <span className="text-[11px] font-semibold text-emerald-400 flex items-center gap-1">
-                    <Icons.DeviceMobile className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Pure App Mode</span>
-                  </span>
-                )}
+                <Icons.Users className="w-3.5 h-3.5 text-kumo-brand" />
+                <span>Switch Role</span>
               </Button>
 
               {/* Theme Toggle */}
@@ -163,136 +152,51 @@ function DemoLayoutInner() {
             </div>
           </div>
 
-          {/* Persona Switcher Tabs on Desktop / Horizontal on Tablet */}
-          <div className="w-full md:w-auto">
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth py-0.5 -mx-1 px-1 touch-pan-x">
-              {/* Switch Role Button (Opens Gateway Modal) */}
-              <Button
-                variant="secondary"
-                size="xs"
-                onClick={() => setRoleModalOpen(true)}
-                className="gap-1.5 shrink-0 font-bold text-xs"
-              >
-                <Icons.Users className="w-3.5 h-3.5 text-kumo-brand" />
-                <span>Choose Role</span>
-              </Button>
+          {/* Desktop Persona Switcher Tabs */}
+          <div className="hidden md:flex items-center gap-1.5">
+            <Button
+              variant="secondary"
+              size="xs"
+              onClick={() => setRoleModalOpen(true)}
+              className="gap-1.5 shrink-0 font-bold text-xs mr-1"
+            >
+              <Icons.Users className="w-3.5 h-3.5 text-kumo-brand" />
+              <span>Choose Role</span>
+            </Button>
 
-              {personaTabs.map((tab) => {
-                const IconComponent = tab.icon;
-                const isActive = currentPersona === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setCurrentPersona(tab.id)}
+            {personaTabs.map((tab) => {
+              const IconComponent = tab.icon;
+              const isActive = currentPersona === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setCurrentPersona(tab.id)}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-left border transition-all cursor-pointer shrink-0 select-none",
+                    isActive
+                      ? "bg-kumo-elevated border-kumo-brand ring-1 ring-kumo-brand text-kumo-default shadow-xs font-semibold"
+                      : "border-kumo-hairline bg-kumo-base/70 text-kumo-subtle hover:text-kumo-default hover:bg-kumo-elevated"
+                  )}
+                >
+                  <IconComponent
                     className={cn(
-                      "flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:py-1.5 rounded-lg text-left border transition-all cursor-pointer shrink-0 select-none",
-                      isActive
-                        ? "bg-kumo-elevated border-kumo-brand ring-1 ring-kumo-brand text-kumo-default shadow-xs font-semibold"
-                        : "border-kumo-hairline bg-kumo-base/70 text-kumo-subtle hover:text-kumo-default hover:bg-kumo-elevated"
+                      "w-3.5 h-3.5 shrink-0",
+                      isActive ? "text-kumo-brand" : "text-kumo-subtle"
                     )}
-                  >
-                    <IconComponent
-                      className={cn(
-                        "w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0",
-                        isActive ? "text-kumo-brand" : "text-kumo-subtle"
-                      )}
-                    />
-                    <span className="text-xs whitespace-nowrap leading-tight">
-                      {tab.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+                  />
+                  <span className="text-xs whitespace-nowrap leading-tight">
+                    {tab.label}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </header>
 
       {/* Main Interactive Container */}
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 pt-3 sm:pt-6 space-y-4 sm:space-y-6">
-
-        {/* Guided Storyline Navigator Banner (visible in presentation mode) */}
-        {viewMode === "presentation" && (
-          <div className="p-3 sm:p-3.5 rounded-2xl border border-kumo-line bg-kumo-elevated/80 backdrop-blur-sm shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-              <div className="min-w-0">
-                <span className="font-bold text-kumo-default block">
-                  Interactive Journey • Brother Samuel Adebayo
-                </span>
-                <span className="text-[11px] text-kumo-subtle truncate block">
-                  Tap any persona to experience the assimilation workflow across church teams.
-                </span>
-              </div>
-            </div>
-
-            {/* Connected 5-Step Storyline Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-              {[
-                {
-                  id: "bus-captain" as PersonaRole,
-                  step: "1",
-                  label: "Bus Transit",
-                  status: activeMember.checkInStatus === "unmarked" ? "Boarding" : "Boarded ✓",
-                },
-                {
-                  id: "pcu-desk" as PersonaRole,
-                  step: "2",
-                  label: "Foyer Desk",
-                  status: "Reconcile",
-                },
-                {
-                  id: "member-portal" as PersonaRole,
-                  step: "3",
-                  label: "Believers' Class",
-                  status: `${activeMember.classModulesCompleted}/4 Modules`,
-                },
-                {
-                  id: "zonal-coordinator" as PersonaRole,
-                  step: "4",
-                  label: "Pastoral Care",
-                  status: activeMember.zonalContacted ? "Welcomed ✓" : "48h SLA",
-                },
-                {
-                  id: "executive-dashboard" as PersonaRole,
-                  step: "5",
-                  label: "Senior Pastor",
-                  status: "Global Funnel",
-                },
-              ].map((st) => {
-                const isCurrent = currentPersona === st.id;
-                return (
-                  <button
-                    key={st.id}
-                    type="button"
-                    onClick={() => setCurrentPersona(st.id)}
-                    className={cn(
-                      "flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-left transition-all cursor-pointer shrink-0 select-none",
-                      isCurrent
-                        ? "border-kumo-brand bg-kumo-base ring-1 ring-kumo-brand text-kumo-default shadow-xs"
-                        : "border-kumo-hairline bg-kumo-base/50 text-kumo-subtle hover:text-kumo-default hover:bg-kumo-elevated"
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold font-mono",
-                        isCurrent ? "bg-kumo-brand text-white" : "bg-kumo-recessed text-kumo-subtle"
-                      )}
-                    >
-                      {st.step}
-                    </span>
-                    <div className="leading-tight">
-                      <span className="font-semibold text-[11px] block">{st.label}</span>
-                      <span className="text-[9px] text-kumo-inactive block">{st.status}</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 pt-3 sm:pt-5 space-y-4">
         {/* Dynamic Persona Render */}
         <div className="transition-all">
           {currentPersona === "bus-captain" && <BusCaptainView />}
@@ -303,17 +207,51 @@ function DemoLayoutInner() {
         </div>
       </main>
 
-      {/* Floating Role Switcher Pill for Mobile Experience */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
-        <button
-          type="button"
-          onClick={() => setRoleModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-full bg-kumo-brand text-white text-xs font-bold shadow-2xl cursor-pointer hover:bg-kumo-brand/90 transition-all border border-white/10"
-        >
-          <Icons.ArrowsLeftRight className="w-3.5 h-3.5" />
-          <span>Role: {currentRoleMeta.label.split(".")[1]?.trim() || currentRoleMeta.label}</span>
-        </button>
-      </div>
+      {/* Mobile Native Bottom Navigation Bar */}
+      <nav
+        aria-label="Mobile Role Navigation"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-kumo-line bg-kumo-base/95 backdrop-blur-xl px-2 py-2 shadow-2xl flex items-center justify-around safe-area-bottom"
+      >
+        {personaTabs.map((tab) => {
+          const IconComponent = tab.icon;
+          const isActive = currentPersona === tab.id;
+          const shortName =
+            tab.id === "bus-captain"
+              ? "Bus"
+              : tab.id === "pcu-desk"
+              ? "PCU Desk"
+              : tab.id === "member-portal"
+              ? "Believers"
+              : tab.id === "zonal-coordinator"
+              ? "Zonal"
+              : "Pastor";
+
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setCurrentPersona(tab.id)}
+              className={cn(
+                "flex flex-col items-center justify-center flex-1 py-1 rounded-xl transition-all cursor-pointer relative",
+                isActive
+                  ? "text-kumo-brand font-bold"
+                  : "text-kumo-subtle hover:text-kumo-default"
+              )}
+            >
+              {isActive && (
+                <span className="absolute -top-2 w-7 h-1 rounded-full bg-kumo-brand" />
+              )}
+              <IconComponent
+                className={cn(
+                  "w-5 h-5 mb-0.5 transition-transform",
+                  isActive ? "text-kumo-brand scale-110" : "text-kumo-subtle"
+                )}
+              />
+              <span className="text-[10px] tracking-tight leading-none">{shortName}</span>
+            </button>
+          );
+        })}
+      </nav>
 
       {/* Role Selection Gateway Modal */}
       <Dialog.Root open={roleModalOpen} onOpenChange={setRoleModalOpen}>

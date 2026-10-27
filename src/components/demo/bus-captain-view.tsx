@@ -10,9 +10,7 @@ import {
   Icons,
 } from "@/design-system";
 import { useDemo } from "@/context/demo-context";
-import {
-  OfflineSyncIndicator,
-} from "@/components/coza";
+
 
 const PRESET_BUS_STOPS = [
   "Area 1 Roundabout",
@@ -105,121 +103,106 @@ export function BusCaptainView() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-5 max-w-2xl mx-auto">
-      {/* Top Mobile Operations Card */}
-      <div className="p-4 rounded-2xl border border-kumo-line bg-kumo-base shadow-sm space-y-3.5">
-        
-        {/* Header Row: Route + Capacity */}
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="font-extrabold text-base text-kumo-default tracking-tight">
-                Bus 4: Garki / Area 1
-              </span>
-              <Badge variant="purple" className="text-[10px] py-0 px-1.5">Route 04</Badge>
+    <div className="space-y-3.5 max-w-2xl mx-auto">
+      {/* Sleek Mobile Bus Command Header */}
+      <div className="p-3.5 sm:p-4 rounded-2xl border border-kumo-line bg-kumo-base shadow-xs space-y-3">
+        {/* Top Header: Route & Live Indicators */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-kumo-brand/10 border border-kumo-brand/30 flex items-center justify-center shrink-0">
+              <Icons.Bus className="w-4 h-4 text-kumo-brand" />
             </div>
-            <p className="text-xs text-kumo-subtle mt-0.5">
-              Pickup stops: Area 1 → Garki Market → Apo Bridge → Guzape
-            </p>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="font-extrabold text-sm sm:text-base text-kumo-default truncate">
+                  Bus 4 • Garki Route
+                </span>
+                <Badge variant="purple" className="text-[10px] py-0 px-1.5 shrink-0">Route 04</Badge>
+              </div>
+              <span className="text-[11px] text-kumo-subtle truncate block">
+                Area 1 → Guzape Campus
+              </span>
+            </div>
           </div>
 
-          {/* Quick Offline Simulation Toggle */}
-          <Button
-            variant="outline"
-            size="xs"
-            onClick={() => setIsOffline(!isOffline)}
-            className="text-[11px] shrink-0"
-          >
-            {isOffline ? "Restore Online" : "Simulate Offline"}
-          </Button>
-        </div>
-
-        {/* Bus Capacity Visual Meter */}
-        <div className="p-3 rounded-xl bg-kumo-elevated border border-kumo-hairline space-y-1.5">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-kumo-subtle flex items-center gap-1">
-              <Icons.Users className="w-3.5 h-3.5 text-kumo-brand" />
-              <span>Seat Occupancy</span>
+          {/* Compact Right: Occupancy & Offline Toggle */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="px-2 py-1 rounded-lg bg-kumo-elevated border border-kumo-hairline font-mono text-[11px] font-bold text-kumo-default">
+              {boardedCount}/{totalBusCapacity} Seats
             </span>
-            <span className="font-mono font-bold text-kumo-default">
-              {boardedCount} / {totalBusCapacity} Seats ({Math.round((boardedCount / totalBusCapacity) * 100)}%)
-            </span>
-          </div>
-
-          <div className="h-2 rounded-full bg-kumo-recessed overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-kumo-brand-hover to-kumo-brand rounded-full transition-all"
-              style={{ width: `${Math.min(100, Math.round((boardedCount / totalBusCapacity) * 100))}%` }}
-            />
-          </div>
-
-          <div className="flex items-center justify-between text-[11px] text-kumo-subtle pt-0.5">
-            <span className="text-emerald-400 font-medium">● {boardedCount} Boarded on Transit</span>
-            <span className="text-amber-400 font-medium">○ {waitingCount} Waiting at Stops</span>
+            <button
+              type="button"
+              onClick={() => setIsOffline(!isOffline)}
+              className={cn(
+                "px-2 py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer flex items-center gap-1",
+                isOffline
+                  ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
+                  : "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+              )}
+            >
+              <span className={cn("w-1.5 h-1.5 rounded-full", isOffline ? "bg-amber-400" : "bg-emerald-400 animate-pulse")} />
+              <span>{isOffline ? "Offline" : "Online"}</span>
+            </button>
           </div>
         </div>
 
-        {/* Offline Sync State Bar */}
-        <OfflineSyncIndicator
-          isOnline={!isOffline}
-          pendingCount={offlineQueueCount}
-          onSync={syncOfflineQueue}
-        />
+        {/* Compact Queued Indicator if offline records exist */}
+        {offlineQueueCount > 0 && (
+          <div className="flex items-center justify-between p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300">
+            <span className="text-[11px]">{offlineQueueCount} record queued offline</span>
+            <Button variant="ghost" size="xs" onClick={syncOfflineQueue} className="text-xs h-6 text-amber-300 hover:text-white">
+              Sync Now
+            </Button>
+          </div>
+        )}
 
-        {/* Primary Mobile Action Buttons */}
-        <div className="grid grid-cols-2 gap-2 pt-1">
+        {/* Primary Action Buttons */}
+        <div className="grid grid-cols-2 gap-2">
           <Dialog.Root open={registerOpen} onOpenChange={setRegisterOpen}>
             <Dialog.Trigger
               render={(p) => (
                 <Button
                   {...p}
                   variant="primary"
-                  size="base"
-                  className="w-full justify-center gap-1.5 py-2.5 font-bold text-xs shadow-md cursor-pointer"
+                  size="sm"
+                  className="w-full justify-center gap-1.5 py-2 font-bold text-xs shadow-xs cursor-pointer"
                 >
-                  <Icons.UserPlus className="w-4 h-4" />
-                  <span>+ Quick Register</span>
+                  <Icons.UserPlus className="w-3.5 h-3.5" />
+                  <span>+ Register</span>
                 </Button>
               )}
             />
             <Dialog size="base" className="p-4 sm:p-6 bg-kumo-base border border-kumo-line rounded-2xl space-y-4 max-w-lg w-[calc(100vw-2rem)] sm:w-full">
               <Dialog.Title className="text-base font-bold text-kumo-default">
-                Quick Transit Convert & Guest Registration
+                Register Transit Passenger
               </Dialog.Title>
-              <Dialog.Description className="text-xs text-kumo-subtle">
-                Captured instantly on transit. Works 100% offline.
-              </Dialog.Description>
 
               <div className="space-y-3">
-                {/* Convert vs Guest Pill Selector */}
-                <div className="space-y-1">
-                  <span className="text-xs font-semibold text-kumo-subtle block">Attendee Type</span>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => setNewCategory("First-Time Guest")}
-                      className={cn(
-                        "py-2 px-3 rounded-lg border text-xs font-semibold text-center transition-all cursor-pointer",
-                        newCategory === "First-Time Guest"
-                          ? "bg-kumo-elevated border-kumo-brand ring-1 ring-kumo-brand text-kumo-default"
-                          : "bg-kumo-recessed border-kumo-hairline text-kumo-subtle"
-                      )}
-                    >
-                      First-Time Guest
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setNewCategory("New Convert")}
-                      className={cn(
-                        "py-2 px-3 rounded-lg border text-xs font-semibold text-center transition-all cursor-pointer",
-                        newCategory === "New Convert"
-                          ? "bg-kumo-elevated border-kumo-brand ring-1 ring-kumo-brand text-kumo-default"
-                          : "bg-kumo-recessed border-kumo-hairline text-kumo-subtle"
-                      )}
-                    >
-                      New Convert
-                    </button>
-                  </div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setNewCategory("First-Time Guest")}
+                    className={cn(
+                      "py-2 px-3 rounded-lg border text-xs font-semibold text-center transition-all cursor-pointer",
+                      newCategory === "First-Time Guest"
+                        ? "bg-kumo-elevated border-kumo-brand ring-1 ring-kumo-brand text-kumo-default"
+                        : "bg-kumo-recessed border-kumo-hairline text-kumo-subtle"
+                    )}
+                  >
+                    First-Time Guest
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewCategory("New Convert")}
+                    className={cn(
+                      "py-2 px-3 rounded-lg border text-xs font-semibold text-center transition-all cursor-pointer",
+                      newCategory === "New Convert"
+                        ? "bg-kumo-elevated border-kumo-brand ring-1 ring-kumo-brand text-kumo-default"
+                        : "bg-kumo-recessed border-kumo-hairline text-kumo-subtle"
+                    )}
+                  >
+                    New Convert
+                  </button>
                 </div>
 
                 <Input
@@ -236,10 +219,9 @@ export function BusCaptainView() {
                   onChange={(e) => setNewPhone(e.target.value)}
                 />
 
-                {/* Preset Bus Stop One-Tap Chips */}
                 <div className="space-y-1.5">
                   <span className="text-xs font-semibold text-kumo-subtle block">
-                    Pickup Bus Stop (Tap to Select)
+                    Pickup Stop
                   </span>
                   <div className="grid grid-cols-2 gap-1.5">
                     {PRESET_BUS_STOPS.map((stop) => (
@@ -248,7 +230,7 @@ export function BusCaptainView() {
                         type="button"
                         onClick={() => setNewStop(stop)}
                         className={cn(
-                          "py-1.5 px-2.5 rounded-lg border text-left text-[11px] truncate transition-all cursor-pointer",
+                          "py-1.5 px-2 rounded-lg border text-left text-[11px] truncate transition-all cursor-pointer",
                           newStop === stop
                             ? "bg-kumo-elevated border-kumo-brand ring-1 ring-kumo-brand text-kumo-default font-semibold"
                             : "bg-kumo-recessed border-kumo-hairline text-kumo-subtle"
@@ -264,7 +246,7 @@ export function BusCaptainView() {
               <div className="flex justify-end gap-2 pt-2">
                 <Dialog.Close render={(p) => <Button {...p} variant="outline" size="sm">Cancel</Button>} />
                 <Button variant="primary" size="sm" onClick={handleRegister}>
-                  Save & Board Passenger
+                  Save & Board
                 </Button>
               </div>
             </Dialog>
@@ -272,12 +254,12 @@ export function BusCaptainView() {
 
           <Button
             variant="outline"
-            size="base"
+            size="sm"
             onClick={() => handleBoardAllAtStop("Area 1 Roundabout")}
-            className="w-full justify-center gap-1.5 py-2.5 text-xs font-semibold"
+            className="w-full justify-center gap-1.5 py-2 text-xs font-semibold"
           >
-            <Icons.CheckCircle className="w-4 h-4 text-emerald-400" />
-            <span>Board All at Area 1</span>
+            <Icons.CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Board All (Area 1)</span>
           </Button>
         </div>
       </div>

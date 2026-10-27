@@ -47,19 +47,17 @@ export function ExecutiveDashboardView() {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Narrative Context Card */}
-      <div className="p-3.5 sm:p-4 rounded-xl border border-kumo-line bg-kumo-elevated flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="purple" className="text-xs">Act 4: Senior Pastor Executive Command View</Badge>
-            <span className="font-semibold text-xs sm:text-sm text-kumo-default">
-              Multi-Branch Assimilation & Evangelism Analytics
-            </span>
+    <div className="space-y-5">
+      {/* Executive Clean Header */}
+      <div className="p-3.5 sm:p-4 rounded-xl border border-kumo-line bg-kumo-elevated flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-xs">
+        <div>
+          <div className="flex items-center gap-1.5">
+            <h2 className="font-extrabold text-sm sm:text-base text-kumo-default">Executive Funnel</h2>
+            <Badge variant="purple" className="text-[10px] py-0 px-1.5">Global</Badge>
           </div>
-          <p className="text-xs text-kumo-subtle leading-relaxed">
-            Answers: &ldquo;What are branches doing this week to reach and retain souls? Where is the drop-off?&rdquo;
-          </p>
+          <span className="text-[11px] text-kumo-subtle block">
+            Assimilation & Evangelism Analytics Across All Campuses
+          </span>
         </div>
 
         <div className="w-full sm:w-56 shrink-0 pt-1 sm:pt-0 border-t sm:border-t-0 border-kumo-hairline">
