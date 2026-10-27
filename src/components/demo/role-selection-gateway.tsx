@@ -2,7 +2,6 @@
 
 import React from "react";
 import {
-  Button,
   Badge,
   cn,
   Icons,
@@ -12,75 +11,40 @@ import { PersonaRole } from "@/context/demo-context";
 interface RoleOption {
   id: PersonaRole;
   title: string;
-  subtitle: string;
-  actor: string;
-  description: string;
-  badge: string;
-  badgeColor: "purple" | "blue" | "green" | "orange";
+  tagline: string;
   icon: React.ElementType;
-  accentColor: string;
 }
 
 const ROLES: RoleOption[] = [
   {
     id: "member-portal",
-    title: "Church Member / Disciple",
-    subtitle: "Discipleship & Video Learning Hub",
-    actor: "Brother Samuel Adebayo (New Believer)",
-    description:
-      "Watch modular video lessons by Pastor Biodun, take quiz assessments, book water baptism immersion, and claim your welcome gift box.",
-    badge: "Member Mobile PWA",
-    badgeColor: "purple",
+    title: "Church Member",
+    tagline: "Believers Academy & Spiritual Passport",
     icon: Icons.GraduationCap,
-    accentColor: "border-purple-500/40 hover:border-purple-500",
   },
   {
     id: "bus-captain",
-    title: "Bus Captain & Transit Marshal",
-    subtitle: "Sunday Transit & Route Mobilization",
-    actor: "Brother Stephen (Bus 4 Garki Route)",
-    description:
-      "Offline passenger boarding, real-time seat occupancy counter (30 seats), quick convert registration, and bus stop manifest.",
-    badge: "Field Transit App",
-    badgeColor: "blue",
+    title: "Bus Captain",
+    tagline: "Transit Roster & Mobile Boarding",
     icon: Icons.Bus,
-    accentColor: "border-blue-500/40 hover:border-blue-500",
   },
   {
     id: "pcu-desk",
-    title: "PCU Service Desk & Foyer Host",
-    subtitle: "Sanctuary Arrival & Reconciliation",
-    actor: "Sister Funke (Foyer Desk 2)",
-    description:
-      "Batch-reconcile incoming bus manifests, simulate QR pass check-ins, detect duplicate entries, and dispatch physical welcome boxes.",
-    badge: "Foyer Check-In Desk",
-    badgeColor: "green",
+    title: "PCU Service Desk",
+    tagline: "Foyer Check-In & Manifest Sync",
     icon: Icons.IdentificationCard,
-    accentColor: "border-emerald-500/40 hover:border-emerald-500",
   },
   {
     id: "zonal-coordinator",
-    title: "Zonal Coordinator & Pastoral Care",
-    subtitle: "Community & 48-Hour SLA Follow-Up",
-    actor: "Deaconess Sarah (Maitama Extension)",
-    description:
-      "48-hour SLA countdown queue, pre-scripted WhatsApp pastoral welcome, Saturday street outreach logging, and Stage 5 ministry placement.",
-    badge: "Pastoral CRM Cockpit",
-    badgeColor: "orange",
+    title: "Zonal Coordinator",
+    tagline: "48h Care Queue & Fellowship Cells",
     icon: Icons.UsersThree,
-    accentColor: "border-amber-500/40 hover:border-amber-500",
   },
   {
     id: "executive-dashboard",
-    title: "Senior Pastor & Leadership",
-    subtitle: "Global Funnel & Multi-Campus Analytics",
-    actor: "Rev. Biodun Fatoyinbo & Executive Pastors",
-    description:
-      "Global assimilation funnel (1,421 souls), branch performance comparisons (Guzape, North Church, Lugbe), and weekly reports.",
-    badge: "Executive Intelligence",
-    badgeColor: "purple",
+    title: "Senior Pastor",
+    tagline: "Global Funnel & Multi-Campus Analytics",
     icon: Icons.ChartBar,
-    accentColor: "border-purple-500/40 hover:border-purple-500",
   },
 ];
 
@@ -88,88 +52,95 @@ interface RoleSelectionGatewayProps {
   onSelectRole: (role: PersonaRole) => void;
   onClose?: () => void;
   isModal?: boolean;
+  currentRole?: PersonaRole;
 }
 
 export function RoleSelectionGateway({
   onSelectRole,
   onClose,
   isModal = false,
+  currentRole,
 }: RoleSelectionGatewayProps) {
   return (
-    <div
-      className={cn(
-        "space-y-4 max-w-2xl mx-auto",
-        isModal ? "p-0" : "p-4 sm:p-6"
-      )}
-    >
-      {/* Brand Header */}
-      <div className="text-center space-y-2 pb-2">
-        <div className="w-12 h-12 rounded-2xl bg-kumo-brand text-white flex items-center justify-center font-black text-base shadow-lg mx-auto">
-          CB
-        </div>
+    <div className={cn("space-y-3 max-w-md mx-auto", isModal ? "p-0" : "p-4")}>
+      {/* Minimal Header */}
+      <div className="flex items-center justify-between pb-1 border-b border-kumo-hairline">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-kumo-default tracking-tight">
-            COZA BUDDY
-          </h2>
-          <p className="text-xs sm:text-sm text-kumo-subtle max-w-md mx-auto mt-1">
-            Church Assimilation Platform • Select your role to experience the live application from your perspective.
-          </p>
+          <h3 className="text-sm font-bold text-kumo-default">Switch Role</h3>
+          <p className="text-[11px] text-kumo-subtle">Select perspective to explore</p>
         </div>
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-7 h-7 rounded-full bg-kumo-recessed hover:bg-kumo-elevated flex items-center justify-center text-kumo-subtle hover:text-kumo-default transition-all cursor-pointer"
+            aria-label="Close"
+          >
+            <Icons.X className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
 
-      {/* Role Selection Grid */}
-      <div className="space-y-2.5">
+      {/* Minimalist Role List */}
+      <div className="space-y-1.5 pt-1">
         {ROLES.map((role) => {
           const IconComponent = role.icon;
+          const isActive = currentRole === role.id;
+
           return (
             <button
               key={role.id}
               type="button"
               onClick={() => onSelectRole(role.id)}
               className={cn(
-                "w-full text-left p-3.5 sm:p-4 rounded-2xl border bg-kumo-elevated hover:bg-kumo-base transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs select-none group",
-                role.accentColor
+                "w-full text-left p-2.5 sm:p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 select-none active:scale-[0.98]",
+                isActive
+                  ? "border-kumo-brand bg-kumo-elevated ring-1 ring-kumo-brand/50 shadow-xs"
+                  : "border-kumo-hairline bg-kumo-base hover:bg-kumo-elevated hover:border-kumo-line"
               )}
             >
-              <div className="flex items-start gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-kumo-recessed text-kumo-brand flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                  <IconComponent className="w-5 h-5 text-kumo-brand" />
+              <div className="flex items-center gap-3 min-w-0">
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
+                    isActive
+                      ? "bg-kumo-brand text-white"
+                      : "bg-kumo-recessed text-kumo-subtle"
+                  )}
+                >
+                  <IconComponent className="w-4 h-4" />
                 </div>
 
-                <div className="space-y-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-extrabold text-sm text-kumo-default group-hover:text-kumo-brand transition-colors">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={cn(
+                        "font-bold text-xs sm:text-sm truncate",
+                        isActive ? "text-kumo-brand" : "text-kumo-default"
+                      )}
+                    >
                       {role.title}
                     </span>
-                    <Badge variant={role.badgeColor} className="text-[10px] py-0 px-1.5">
-                      {role.badge}
-                    </Badge>
                   </div>
-                  <div className="text-[11px] font-medium text-kumo-subtle">
-                    {role.actor}
-                  </div>
-                  <p className="text-xs text-kumo-subtle leading-relaxed line-clamp-2">
-                    {role.description}
-                  </p>
+                  <span className="text-[11px] text-kumo-subtle truncate block">
+                    {role.tagline}
+                  </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5 self-end sm:self-center shrink-0 text-xs font-semibold text-kumo-brand group-hover:translate-x-1 transition-transform">
-                <span>Open App</span>
-                <Icons.ArrowRight className="w-3.5 h-3.5" />
+              <div className="shrink-0 flex items-center">
+                {isActive ? (
+                  <div className="w-5 h-5 rounded-full bg-kumo-brand/10 text-kumo-brand flex items-center justify-center">
+                    <Icons.Check className="w-3.5 h-3.5" weight="bold" />
+                  </div>
+                ) : (
+                  <Icons.CaretRight className="w-4 h-4 text-kumo-subtle/50" />
+                )}
               </div>
             </button>
           );
         })}
       </div>
-
-      {isModal && onClose && (
-        <div className="pt-2 flex justify-center">
-          <Button variant="ghost" size="sm" onClick={onClose} className="text-xs text-kumo-subtle">
-            Cancel & Keep Current View
-          </Button>
-        </div>
-      )}
     </div>
   );
 }

@@ -189,8 +189,9 @@ function DemoLayoutInner() {
 
       {/* Role Selection Gateway Modal */}
       <Dialog.Root open={roleModalOpen} onOpenChange={setRoleModalOpen}>
-        <Dialog size="base" className="p-4 sm:p-6 bg-kumo-base border border-kumo-line rounded-3xl space-y-4 max-w-xl w-[calc(100vw-1.5rem)] sm:w-full max-h-[85vh] overflow-y-auto">
+        <Dialog size="base" className="p-4 bg-kumo-base border border-kumo-line rounded-2xl max-w-sm w-[calc(100vw-2rem)] sm:w-full shadow-2xl">
           <RoleSelectionGateway
+            currentRole={currentPersona}
             onSelectRole={(role) => {
               setCurrentPersona(role);
               setRoleModalOpen(false);
